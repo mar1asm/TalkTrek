@@ -3,12 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Learning_platform.Models
 {
-    public class UserType
+    public class ContentTypeDto
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } 
 
     }
 }

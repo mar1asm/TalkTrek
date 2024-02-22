@@ -1,59 +1,46 @@
-﻿using Learning_platform.Models;
+﻿using Learning_platform.Entities;
+using Learning_platform.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Learning_platform.DBContexts
 {
-    public class TutoringPlatformContext : DbContext
+    public class TutoringPlatformContext : IdentityDbContext<ApplicationUser>
     {
-        public DbSet<UserDto> Users { get; set; }
-        public DbSet<UserType> UserTypes { get; set; }
-        public DbSet<Message> Messages { get; set; }
+        public DbSet<User> User { get; set; }
+        public DbSet<Student> Student { get; set; }
+        public DbSet<Tutor> Tutor { get; set; }
+        //public DbSet<Message> Messages { get; set; }
+        public DbSet<ApplicationUser> AspNetUsers { get; set; }
+        public DbSet<ApplicationUser> AspNetRoles { get; set; }
 
-   
+
+
+
         public TutoringPlatformContext(DbContextOptions<TutoringPlatformContext> options) : base(options)
         {
         }
 
-  
+
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseMySQL("your_connection_string_here");
-            }
+            optionsBuilder.UseLazyLoadingProxies();
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Message>()
-                .HasOne(m => m.ContentType)
-                .WithMany()
-                .IsRequired();
+            modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<Student>().ToTable("Student");
+            modelBuilder.Entity<Tutor>().ToTable("Tutor");
 
-            modelBuilder.Entity<UserDto>()
-                .HasOne(u => u.UserType)
-                .WithMany()
-                .IsRequired();
+            // Configure common properties in base User entity
+            modelBuilder.Entity<User>().HasKey(u => u.Id);
 
-            modelBuilder.Entity<Tutor>()
-                .HasBaseType<UserDto>();
 
-            modelBuilder.Entity<Student>()
-                .HasBaseType<UserDto>();
-
-            modelBuilder.Entity<Message>()
-                .HasOne(m => m.Sender)
-                .WithMany()
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Message>()
-                .HasOne(m => m.Receiver)
-                .WithMany()
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
