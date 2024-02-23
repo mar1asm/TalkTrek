@@ -74,12 +74,19 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITutorRepository, TutorRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 
+builder.Services.AddHttpClient<EmailConfirmationClient>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7048/");
+    // Configure other HttpClient options if needed
+});
+
 builder.Logging.AddConsole();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -110,6 +117,8 @@ async Task SeedRoles(RoleManager<IdentityRole> roleManager)
     }
 }
 
+
+app.UseRouting();
 
 app.UseHttpsRedirection();
 

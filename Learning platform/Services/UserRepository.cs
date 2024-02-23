@@ -19,7 +19,7 @@ namespace Learning_platform.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public async Task<bool> CompleteUserProfile(AccountBasicDetailsModel model)
+        public async Task<bool> CompleteUserProfileAsync(AccountBasicDetailsModel model)
         {
             // Retrieve the user based on the provided user ID
             var user = await _userManager.FindByIdAsync(model.Id);
@@ -37,6 +37,7 @@ namespace Learning_platform.Services
             return saveResult > 0;
         }
 
+       
         /*public async Task<User?> GetUserAsync(int userId)
 {
    throw new NotImplementedException();
