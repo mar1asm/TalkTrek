@@ -1,0 +1,41 @@
+.main-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .top-nav {
+    height: 7%;
+    padding: 0% 2% 0% 2%;
+    top: 0;
+    .example-fill-remaining-space {
+      /* This fills the remaining space, by using flexbox. 
+     Every toolbar row uses a flexbox row layout. */
+      flex: 1 1 auto;
+    }
+    section {
+      display: flex;
+      flex-direction: row;
+      .unregistered-user-button-row .mat-mdc-button-base {
+        max-width: 600px;
+        margin: 10% 10% 10% 0%;
+      }
+    }
+  }
+
+  .top-nav,
+  .bottom-nav {
+    position: relative;
+    z-index: 1000;
+  }
+  .bottom-nav {
+    bottom: 0;
+    height: 5%;
+  }
+
+  .container-fluid {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: right;
+    padding: 0%;
+  }
+}
