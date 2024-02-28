@@ -1,54 +1,33 @@
-.register-page {
-  height: 100%;
-  width: 100%;
+.register-form {
   display: flex;
-  flex-direction: row;
-  img {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: whitesmoke;
+  height: 100%;
+
+  .form-group {
+    margin-top: 7%;
     width: 80%;
   }
-  .register-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: whitesmoke;
-    height: 100%;
-    width: 30%;
 
-    .form-group {
-      margin-top: 7%;
-      width: 80%;
-    }
-
-    .btn.btn-success {
-      margin-top: 10%;
-    }
-
-    .ng-valid[required],
-    .ng-valid.required {
-      border-left: 5px solid #42a948; /* green */
-    }
-
-    .ng-touched.ng-invalid:not(form) {
-      border-left: 5px solid #a94442; /* red */
-    }
-
-    .form-group.user-types {
-      display: flex;
-    }
-    #userTypes {
-      display: flex;
-      justify-content: center;
-    }
+  .btn.btn-success {
+    margin-top: 10%;
   }
-  .usertypescontainer {
+
+  .ng-valid[required],
+  .ng-valid.required {
+    border-left: 5px solid #42a948; /* green */
+  }
+
+  .ng-touched.ng-invalid:not(form) {
+    border-left: 5px solid #a94442; /* red */
+  }
+
+  .form-group.user-types {
     display: flex;
-    flex-direction: row;
-    color: black;
-    align-items: center;
-    margin-left: 15%;
-    padding-left: 5%;
+    justify-content: space-between;
   }
 }

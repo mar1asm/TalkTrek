@@ -1,0 +1,13 @@
+<div class="auth-page">
+    <img mat-card-image src="../../../assets/online-tutor.jpg" alt="Tutor image">
+    <div class="auth-form">
+        <ng-container class="register" *ngIf="showRegistrationForm; else loginForm">
+            <!-- Registration form -->
+            <app-register></app-register>
+        </ng-container>
+        <ng-template #loginForm>
+            <!-- Login form -->
+            <app-login></app-login>
+        </ng-template>
+    </div>
+</div>

@@ -33,9 +33,11 @@
   }
 
   .container-fluid {
+    height: 93%;
     flex: 1 1 auto;
     display: flex;
     justify-content: right;
     padding: 0%;
+    margin: 0%;
   }
 }

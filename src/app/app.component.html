@@ -8,9 +8,9 @@
 
     <section>
       <div class="unregistered-user-button-row">
-        <button mat-button routerLink="/account/login" routerLinkActive="active"
+        <button mat-button routerLink="/account/auth" routerLinkActive="active" [queryParams]="{ action: 'login' }"
           [routerLinkActiveOptions]="{exact: true}">Login</button>
-        <button mat-button routerLink="/account/register" routerLinkActive="active"
+        <button mat-button routerLink="/account/auth" routerLinkActive="active" [queryParams]="{ action: 'register' }"
           [routerLinkActiveOptions]="{exact: true}">Register</button>
       </div>
     </section>

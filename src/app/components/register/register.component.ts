@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RegisterModel } from '../../models/register-model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -7,6 +8,10 @@ import { RegisterModel } from '../../models/register-model';
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent implements OnInit {
+
+  constructor(private authService: AuthService) {
+
+  }
 
   registerModel: RegisterModel = {} as RegisterModel;
   userTypes = ['Student', 'Chutor'];
@@ -19,5 +24,8 @@ export class RegisterComponent implements OnInit {
 
   submitted = false;
 
-  onSubmit(registerModel: any) { this.submitted = true; }
+  onSubmit() {
+    this.submitted = true;
+    this.authService.register(this.registerModel);
+  }
 }

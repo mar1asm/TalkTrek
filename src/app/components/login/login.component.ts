@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { LoginModel } from '../../models/login-model';
 
 @Component({
   selector: 'app-login',
@@ -7,4 +8,12 @@ import { Component } from '@angular/core';
 })
 export class LoginComponent {
 
+  loginModel: LoginModel = {} as LoginModel;
+  ngOnInit(): void {
+
+  }
+
+  submitted = false;
+
+  onSubmit(loginModel: any) { this.submitted = true; }
 }

@@ -20,13 +20,16 @@ import { MatRadioModule } from '@angular/material/radio';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import { AuthComponent } from './components/auth/auth.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    AuthComponent
   ],
   imports: [
     BrowserModule,
@@ -37,7 +40,8 @@ import { RegisterComponent } from './components/register/register.component';
     MatIconModule,
     MatButtonModule,
     MatRadioModule,
-    
+    HttpClientModule
+
   ],
   providers: [
     provideClientHydration(),
