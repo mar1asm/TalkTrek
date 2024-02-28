@@ -80,6 +80,15 @@ builder.Services.AddHttpClient<EmailConfirmationClient>(client =>
     // Configure other HttpClient options if needed
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin",
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 builder.Logging.AddConsole();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -116,6 +125,8 @@ async Task SeedRoles(RoleManager<IdentityRole> roleManager)
         await roleManager.CreateAsync(new IdentityRole("Student"));
     }
 }
+
+app.UseCors("AllowOrigin");
 
 
 app.UseRouting();
