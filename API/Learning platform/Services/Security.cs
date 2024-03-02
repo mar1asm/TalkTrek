@@ -1,48 +1,23 @@
-﻿using System.Security.Cryptography;
+﻿
+using Learning_platform.Configuration;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Learning_platform.Services
 {
     public class Security
     {
-        /*public static string DecryptWithNonce(string encryptedData, string nonce)
+        private readonly JwtConfig _jwtConfig;
+
+        public Security(IOptions<JwtConfig> jwtConfig)
         {
-            // Convert Base64-encoded string to byte array
-            byte[] encryptedBytes = Convert.FromBase64String(encryptedData);
-            byte[] nonceBytes = Encoding.UTF8.GetBytes(nonce);
-
-            // Extract IV from nonce
-            byte[] iv = new byte[16];
-            Buffer.BlockCopy(nonceBytes, 0, iv, 0, 16);
-
-            // Extract key from nonce
-            byte[] key = new byte[16];
-            Buffer.BlockCopy(nonceBytes, 16, key, 0, 16);
-
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Mode = CipherMode.CBC;
-                aesAlg.Key = key;
-                aesAlg.IV = iv;
-                aesAlg.Padding = PaddingMode.PKCS7;
-
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream msDecrypt = new MemoryStream(encryptedBytes))
-                {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                    {
-                        // Create a buffer to hold the decrypted bytes
-                        byte[] decryptedBytes = new byte[encryptedBytes.Length];
-                        int decryptedByteCount = csDecrypt.Read(decryptedBytes, 0, decryptedBytes.Length);
-
-                        // Convert the decrypted bytes to a string
-                        string decryptedData = Encoding.UTF8.GetString(decryptedBytes, 0, decryptedByteCount);
-                        return decryptedData;
-                    }
-                }
-            }
-        }*/
+            _jwtConfig = jwtConfig.Value ?? throw new ArgumentNullException(nameof(jwtConfig));
+        }
 
         public static string DecryptPassword(string encryptedPassword, string secretKey)
         {
@@ -86,5 +61,83 @@ namespace Learning_platform.Services
                 }
             }
         }
+
+        public string GenerateEncodedToken(string userId, string device, IList<string> roles = null)
+        {
+            // Initialize a list of claims for the JWT. These include the user's ID and device information,
+            // a unique identifier for the JWT, and the time the token was issued.
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, userId),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.Ticks.ToString(), ClaimValueTypes.Integer64),
+                new Claim(ClaimTypes.System, device)
+            };
+
+            DateTime expires = DateTime.Now.AddDays(1);
+
+            // If any roles are provided, add them to the list of claims. Each role is a separate claim.
+            if (roles?.Any() == true)
+            {
+                foreach (string role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
+
+            // Create the JWT security token and encode it.
+            // The JWT includes the claims defined above, the issuer and audience from the config
+            // It's signed with a symmetric key, also from the config, and the HMAC-SHA256 algorithm.
+            JwtSecurityToken jwt = new JwtSecurityToken(
+                issuer: _jwtConfig.JwtIssuer,
+                audience: _jwtConfig.JwtAudience,
+                claims: claims,
+                expires: expires,
+                signingCredentials: new SigningCredentials(
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.JwtKey)),
+                        SecurityAlgorithms.HmacSha256)
+            );
+
+            // Convert the JWT into a string format that can be included in an HTTP header.
+            string encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+            return encodedJwt;
+        }
+
+
+
+        public ClaimsPrincipal ValidateToken(string token)
+        {
+            try
+            {
+                // Create token validation parameters
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.JwtKey)),
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwtConfig.JwtIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwtConfig.JwtAudience,
+                    ValidateLifetime = true
+                };
+
+                // Create token handler
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                // Validate token and return claims principal
+                SecurityToken validatedToken;
+                return tokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
+            }
+            catch (Exception ex)
+            {
+                // Token validation failed
+                throw new SecurityTokenValidationException("Token validation failed.", ex);
+            }
+        }
     }
+
+
+
+
 }

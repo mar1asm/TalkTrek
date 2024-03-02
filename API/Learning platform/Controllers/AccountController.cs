@@ -1,7 +1,9 @@
 ﻿using Learning_platform.Entities;
 using Learning_platform.Models;
 using Learning_platform.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Crypto.Generators;
@@ -15,23 +17,26 @@ namespace Learning_platform.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserRepository _userRepository;
         private readonly IEmailSender _emailSender;
+        private readonly Security _security;
         private readonly EmailConfirmationClient _emailConfirmationClient;
 
 
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            RoleManager<IdentityRole> roleManager, IUserRepository userRepository, IEmailSender emailSender, EmailConfirmationClient emailConfirmationClient)
+            RoleManager<IdentityRole> roleManager, IUserRepository userRepository, IEmailSender emailSender, EmailConfirmationClient emailConfirmationClient, Security security)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _userRepository = userRepository;
             _emailSender = emailSender;
-            _emailConfirmationClient = emailConfirmationClient; 
+            _emailConfirmationClient = emailConfirmationClient;
+            _security = security;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
+
 
             // Retrieve the user record from the database based on the email
             ApplicationUser ApplicationUser = await _userManager.FindByEmailAsync(model.Email);
@@ -40,19 +45,30 @@ namespace Learning_platform.Controllers
             if (ApplicationUser != null && !string.IsNullOrEmpty(ApplicationUser.PasswordHash))
             {
                    var decryptedPassword = Security.DecryptPassword(model.Password, "abcdefghijklmnop"); //change this
-                // Compare the decrypted password received from the client with the hashed password stored in the database for the user
-                bool isPasswordCorrect = await _userManager.CheckPasswordAsync(ApplicationUser, decryptedPassword);
+                                                                                                         // Compare the decrypted password received from the client with the hashed password stored in the database for the user
 
-                if (isPasswordCorrect)
+
+                var result = await _signInManager.PasswordSignInAsync(model.Email,
+                               decryptedPassword, true, lockoutOnFailure: true);
+                await _signInManager.SignOutAsync();
+
+                var userRoles = await _userManager.GetRolesAsync(ApplicationUser);
+                var tokenResult = _security.GenerateEncodedToken(ApplicationUser.Id, "", userRoles);
+
+                var ress = _security.ValidateToken(tokenResult);
+
+
+                if (result.Succeeded)
                 {
-                    // Passwords match, authenticate the user
-                    // You can generate a token or perform any other authentication mechanism here
-                    return Ok("Login successful");
+                    return Ok(new { message = "Login successful", token=tokenResult });
                 }
             }
 
             // If the user doesn't exist or passwords don't match, return an error indicating invalid credentials
-            return BadRequest("Invalid email or password");
+            return BadRequest(new
+            {
+                message = "Invalid email or password"
+            });
         }
 
         [HttpPost("register")]
@@ -81,7 +97,7 @@ namespace Learning_platform.Controllers
                 if (!roleResult.Succeeded)
                 {
                     // Handle role assignment failure
-                    return BadRequest("Failed to assign user role.");
+                    return BadRequest(new { message = "Failed to assign user role." });
                 }
 
                 var emailConfirmationCode = await _userManager.GenerateEmailConfirmationTokenAsync(ApplicationUser);
@@ -102,14 +118,20 @@ namespace Learning_platform.Controllers
         {
             if (string.IsNullOrEmpty(email))
             {
-                return BadRequest("User ID is required.");
+                return BadRequest(new
+                {
+                    message = "User ID is required."
+                });
             }
 
             var ApplicationUser = await _userManager.FindByEmailAsync(email);
 
             if (ApplicationUser == null)
             {
-                return NotFound("Invalid user");
+                return NotFound(new
+                {
+                    message = "Invalid user"
+                });
             }
 
 
@@ -118,9 +140,11 @@ namespace Learning_platform.Controllers
 
             await _emailSender.SendEmailAsync(ApplicationUser.Email, "Confirm your email", $"Please confirm your email by <a href='{emailConfirmationLink}'>clicking here</a>.");
 
-            return Ok("Email resent. Please check your email.");
+            return Ok(new
+            {
+                message = "Email resent. Please check your email."
+            });
 
-            return BadRequest("Invalid request");
         }
 
         [HttpPost("confirm-email", Name = "ConfirmEmail")]
@@ -128,23 +152,35 @@ namespace Learning_platform.Controllers
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(confirmationCode))
             {
-                return BadRequest("User ID and confirmation code are required.");
+                return BadRequest(new
+                {
+                    message = "User ID and confirmation code are required."
+                });
             }
 
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {
-                return NotFound("Invalid user");
+                return NotFound(new
+                {
+                    message = "Invalid user"
+                });
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, confirmationCode);
             if (result.Succeeded)
             {
-                return Ok("Email address confirmed");
+                return Ok(new
+                {
+                    message = "Email address confirmed"
+                });
             }
 
-            return BadRequest("Invalid request");
+            return BadRequest(new
+            {
+                message = "Invalid request"
+            });
         }
 
         [HttpGet("confirm-email")] // idk why the browser makes a GET request even if the method is configured as POST in the link
@@ -163,7 +199,10 @@ namespace Learning_platform.Controllers
             }
             else
             {
-                return BadRequest("Failed to confirm email address");
+                return BadRequest(new
+                {
+                    message = "Failed to confirm email address"
+                });
             }
         }
 
@@ -180,12 +219,27 @@ namespace Learning_platform.Controllers
             var success = await _userRepository.CompleteUserProfileAsync(model);
             if (success)
             {
-                return Ok("Profile completed successfully.");
+                return Ok(new
+                {
+                    message = "Profile completed successfully."
+                });
             }
             else
             {
-                return BadRequest("Failed to complete profile.");
+                return BadRequest(new
+                {
+                    message = "Failed to complete profile."
+                });
             }
+        }
+
+
+
+        [HttpGet("restricted-endpoint")]
+        [Authorize(Policy = "RequireStudentRole")]
+        public async Task <IActionResult> TEST()
+        {
+            return Ok("You have access to the restricted endpoint.");
         }
 
         

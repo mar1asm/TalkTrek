@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Learning_platform.Configuration;
 using System.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,14 +30,17 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    // Default Password settings.
-    //options.User.UserName = options.User.Email;
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 6;
     options.Password.RequiredUniqueChars = 1;
+
+
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 });
 
 
@@ -66,8 +72,10 @@ builder.Services.AddSwaggerGen();
 
 
 builder.Services.Configure<EmailSenderOptions>(builder.Configuration.GetSection("EmailSenderOptions"));
+builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("Jwt"));
 
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<Security>();
 
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -92,6 +100,34 @@ builder.Services.AddCors(options =>
 builder.Logging.AddConsole();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:JwtIssuer"],
+                    ValidAudience = builder.Configuration["Jwt:JwtAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:JwtKey"]))
+                };
+            });
+
+// Configure authorization policy
+builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireTutorRole", policy =>
+                policy.RequireRole("Tutor"));
+
+            options.AddPolicy("RequireStudentRole", policy =>
+                policy.RequireRole("Student"));
+        });
 
 
 var app = builder.Build();
@@ -132,6 +168,8 @@ app.UseCors("AllowOrigin");
 app.UseRouting();
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
