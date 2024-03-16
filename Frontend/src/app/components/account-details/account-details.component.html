@@ -1,0 +1,25 @@
+<form #detailsForm="ngForm" class="account-details-form" (ngSubmit)="onSubmit()">
+
+    <div [hidden]="isProfileComplete" class="incomplete-profile">
+        Please fill in details before using the app
+    </div>
+    <div class="form-group">
+        <label for="firstName">First name</label>
+        <input type="first-name" class="form-control" id="first-name" required name="firstName"
+            [(ngModel)]="user.firstName" name="firstName">
+    </div>
+
+    <div class="form-group">
+        <label for="firstName">Last name</label>
+        <input type="first-name" class="form-control" id="last-name" required name="lastName"
+            [(ngModel)]="user.lastName" name="lastName">
+    </div>
+
+    <div class="form-group">
+        <label for="firstName">Email</label>
+        <input readOnly type="first-name" class="form-control" id="first-name" required name="firstName"
+            [(ngModel)]="user.email" name="email">
+    </div>
+
+    <button type="submit" class="btn btn-success" [disabled]="!detailsForm.form.valid">Save</button>
+</form>

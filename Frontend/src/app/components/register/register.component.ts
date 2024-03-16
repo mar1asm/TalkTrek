@@ -26,6 +26,7 @@ export class RegisterComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
+    console.log('OKKKKKK')
     this.authService.register(this.registerModel);
   }
 }

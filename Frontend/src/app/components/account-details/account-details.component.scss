@@ -1,0 +1,31 @@
+.account-details-form {
+  display: flex;
+  flex-direction: column;
+
+  padding: 15px;
+  border-radius: 5px;
+  background-color: whitesmoke;
+  height: 100%;
+
+  .form-group {
+    margin-top: 7%;
+    width: 80%;
+  }
+
+  .btn.btn-success {
+    margin-top: 10%;
+    width: 8%;
+  }
+
+  .ng-valid[required],
+  .ng-valid.required {
+    border-left: 5px solid #42a948; /* green */
+  }
+
+  .ng-touched.ng-invalid:not(form) {
+    border-left: 5px solid #a94442; /* red */
+  }
+  .incomplete-profile {
+    color: darkred;
+  }
+}

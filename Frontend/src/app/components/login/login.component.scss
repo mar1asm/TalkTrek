@@ -4,13 +4,13 @@
   align-items: center;
   justify-content: center;
   padding: 15px;
-  border-radius: 5px;
-  background-color: whitesmoke;
+  border-radius: 0px;
   height: 100%;
 
   .form-group {
     margin-top: 7%;
     width: 80%;
+    border-radius: 0%;
   }
 
   .btn.btn-success {
@@ -25,4 +25,14 @@
   .ng-touched.ng-invalid:not(form) {
     border-left: 5px solid #a94442; /* red */
   }
+}
+
+.login-failed {
+  color: darkred;
+  background: pink;
+  width: 80%;
+}
+
+.email-confirmed {
+  color: green;
 }

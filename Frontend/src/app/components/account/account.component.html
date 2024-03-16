@@ -1,0 +1,19 @@
+<div class="page-title">
+    <h1>My account</h1>
+</div>
+<div class="account-page">
+
+    <div class="account-menu">
+        <button mat-button *ngFor="let tab of tabsArray" (click)="onChangeTab(tab.key)" class="menu-item"
+            [class.menu-item-selected]="selectedTabKey === tab.key">
+            {{ tab.name }}
+            <mat-icon iconPositionEnd>{{tab.icon}}</mat-icon>
+        </button>
+    </div>
+
+    <div class="account-tab">
+        <!-- Use *ngIf to conditionally render the selected tab component -->
+        <ng-container *ngComponentOutlet="selectedTabComponent"></ng-container>
+    </div>
+
+</div>

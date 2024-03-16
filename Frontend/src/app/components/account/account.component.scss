@@ -1,0 +1,39 @@
+.page-title {
+  padding-left: 5%;
+  padding-top: 1%;
+  height: 10%;
+}
+
+.account-page {
+  height: 90%;
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  .account-menu {
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+    height: 70%;
+    padding-top: 5%;
+    .menu-item {
+      height: 15%;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid gray;
+      margin-left: 10%;
+      margin-right: 10%;
+      padding-left: 5%;
+      justify-content: space-between;
+      border-radius: 0%;
+    }
+    .menu-item-selected {
+      background-color: #ebeaea; /* Change background color to indicate selection */
+      color: #000; /* Change text color to improve contrast */
+      /* Add any other styles to indicate selection */
+    }
+  }
+  .account-tab {
+    width: 80%;
+    background-color: aqua;
+  }
+}

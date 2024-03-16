@@ -1,10 +1,14 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { UserType } from '../models/user-model';
 import { RegisterModel } from '../models/register-model';
-import { hash } from 'bcryptjs';
-import { catchError, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, firstValueFrom, tap, throwError } from 'rxjs';
 import CryptoJS from 'crypto-js';
+import { LoginModel } from '../models/login-model';
+import { IAuthState } from '../../store/state/auth.state';
+import { Store, select } from '@ngrx/store';
+import * as AuthActions from './../../store/actions/auth.actions';
+import * as authSelectors from './../../store/selectors/auth.selectors'
+import { response } from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +16,9 @@ import CryptoJS from 'crypto-js';
 export class AuthService {
   private apiRoot = 'https://localhost:7048';
   private apiUrl = '';
-  constructor(private http: HttpClient) { }
+  private isLoggedInSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  constructor(private http: HttpClient, private store: Store<IAuthState>) { }
 
   /*   encryptWithNonce(data: string, nonce: string): string {
       // Convert nonce to WordArray
@@ -90,4 +96,94 @@ export class AuthService {
 
   }
 
+
+
+  async login(loginModel: LoginModel): Promise<any> {
+    const encryptedPassword = await this.encryptPassword(loginModel.password, "abcdefghijklmnop");
+
+    const requestBody = {
+      email: loginModel.email,
+      password: encryptedPassword
+    };
+
+    this.apiUrl = `${this.apiRoot}/login`
+    // Make HTTP POST request to register endpoint with the request body
+
+    return new Promise((resolve, reject) => {
+      this.http.post<any>(this.apiUrl, requestBody)
+        .subscribe({
+          next: response => {
+            console.log('Login successful:', response);
+            this.isLoggedInSubject.next(true);
+            resolve(response); // Resolve the promise with the response data
+          },
+          error: error => {
+            console.error('Login failed:', error);
+            reject(error); // Reject the promise with the error
+          }
+        });
+    });
+  } catch(error: any) {
+    console.error('An error occurred during login:', error);
+    throw error; // Rethrow the error
+  }
+
+  setToken(token: string): void {
+    this.store.dispatch(AuthActions.setToken({ token }));
+  }
+
+  clearToken(): void {
+    this.store.dispatch(AuthActions.clearToken());
+  }
+
+
+
+  getToken(): Observable<string | null> {
+    return this.store.pipe(
+      select(authSelectors.getToken)
+    );
+  }
+
+
+  async confirmEmail(userId: string, confirmationCode: string): Promise<any> {
+    this.apiUrl = `${this.apiRoot}/confirm-email`
+
+    const requestBody = {
+      userId: userId,
+      confirmationCode: confirmationCode
+    };
+
+    return new Promise((resolve, reject) => {
+      this.http.post<any>(this.apiUrl, requestBody)
+        .subscribe({
+          next: response => {
+            console.log("ok", response)
+            resolve(response);
+          },
+          error: error => {
+            console.error('fail', error)
+            reject(error);
+          }
+        });
+    });
+  }
+
+  async checkAccountComplete(): Promise<boolean> {
+    this.apiUrl = `${this.apiRoot}/account/check`;
+
+    try {
+      const token = await firstValueFrom(this.getToken());
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+      return await firstValueFrom(this.http.get<boolean>(this.apiUrl, { headers }));
+    } catch (error) {
+      console.error('Error checking account completeness:', error);
+      return false; // Return false in case of any error
+    }
+  }
+
+  logout() {
+    this.clearToken();
+    this.isLoggedInSubject.next(false);
+  }
 }
