@@ -14,7 +14,7 @@ export class RegisterComponent implements OnInit {
   }
 
   registerModel: RegisterModel = {} as RegisterModel;
-  userTypes = ['Student', 'Chutor'];
+  userTypes = ['Student', 'Tutor'];
   ngOnInit(): void {
 
   }

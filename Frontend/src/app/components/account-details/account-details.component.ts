@@ -16,7 +16,8 @@ export class AccountDetailsComponent implements OnInit {
     lastName: '',
     email: '',
     userType: '',
-    registrationDate: ''
+    registrationDate: '',
+    profilePhoto: null
   }
 
   isProfileComplete: Boolean = false;
@@ -56,4 +57,29 @@ export class AccountDetailsComponent implements OnInit {
     });
   }
 
+
+  async onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        this.user.profilePhoto = reader.result;
+        await this.accountService.updateProfilePhoto(file);
+      };
+    }
+  }
+
+  async deletePhoto() {
+    this.user.profilePhoto = ''
+    await this.accountService.deleteProfilePhoto();
+    const profilePhotoInput = document.getElementById('profile-photo') as HTMLInputElement;
+    if (profilePhotoInput) {
+      profilePhotoInput.value = '';
+    }
+  }
+
+  isBase64String(value: any): boolean {
+    return typeof value === 'string' && value.startsWith('data:image');
+  }
 }

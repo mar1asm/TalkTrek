@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AccountDetailsComponent } from '../account-details/account-details.component';
 import { AccountDashboardComponent } from '../account-dashboard/account-dashboard.component';
+import { ChangePasswordComponent } from '../change-password/change-password.component';
 
 interface Tab {
   key: string;
@@ -13,12 +14,10 @@ interface Tab {
 
 
 export const tabs: Map<string, Tab> = new Map<string, Tab>([
-  ['dashboard', { key: 'dashboard', name: 'Dashboard', component: AccountDashboardComponent, icon: 'dashboard' }],
-  ['account-details', { key: 'account-details', name: 'Account details', component: AccountDetailsComponent, icon: 'account_box' }],
-  ['history', { key: 'history', name: 'History', component: AccountDetailsComponent, icon: 'history' }],
-  ['payments', { key: 'payments', name: 'Payments', component: AccountDetailsComponent, icon: 'account_balance_wallet' }],
-  ['settings', { key: 'settings', name: 'Settings', component: AccountDetailsComponent, icon: 'settings' }],
-  ['logout', { key: 'logout', name: 'Logout', component: AccountDetailsComponent, icon: 'logout' }]
+  ['account-details', { key: 'account-details', name: 'Details', component: AccountDetailsComponent, icon: 'account_box' }],
+  ['change-password', { key: 'change-password', name: 'Change password', component: ChangePasswordComponent, icon: 'history' }],
+  ['payment-methods', { key: 'payment-methods', name: 'Payment methods', component: AccountDetailsComponent, icon: 'account_balance_wallet' }],
+  ['payment-history', { key: 'payment-history', name: 'Payment history', component: AccountDetailsComponent, icon: 'settings' }]
 ]);
 
 @Component({
@@ -31,7 +30,7 @@ export const tabs: Map<string, Tab> = new Map<string, Tab>([
 
 export class AccountComponent implements OnInit {
 
-  selectedTabKey: string = "Dashboard"
+  selectedTabKey: string = "account-details"
   selectedTabComponent: any
   tabsArray = Array.from(tabs.values())
 
@@ -42,11 +41,10 @@ export class AccountComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.isLoggedIn$.subscribe((isLoggedIn: boolean) => {
-      console.log("Is logged in " + isLoggedIn)
-      !isLoggedIn && this.router.navigate(['auth'], { queryParams: { action: 'login' } });
+      !isLoggedIn && this.router.navigate(['auth'], { queryParams: { action: 'login' } }); //DEV ONLY
     });
     this.route.queryParams.subscribe(params => {
-      this.selectedTabKey = params['tab'] || 'dashboard';
+      this.selectedTabKey = params['tab'] || 'account-details';
       this.selectedTabComponent = tabs.get(this.selectedTabKey)?.component
     });
   }
@@ -54,7 +52,6 @@ export class AccountComponent implements OnInit {
 
 
   onChangeTab(tabKey: any) {
-    console.log('ok')
     this.selectedTabKey = tabKey
     this.selectedTabComponent = tabs.get(this.selectedTabKey)?.component
   }

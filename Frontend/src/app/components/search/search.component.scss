@@ -1,4 +1,4 @@
-.account-page {
+.search-page {
   height: 100%;
   width: 100%;
   display: flex;
@@ -8,28 +8,21 @@
     height: 100%;
     width: 100%;
 
-    .account-menu {
+    .filters-pane {
       display: flex;
       flex-direction: column;
       height: 100%;
       padding: 0%;
-      .menu-item {
+      width: 25%;
+      .filter-item {
         height: 10%;
         display: flex;
         align-items: center;
         justify-content: space-between;
         border-radius: 0%;
       }
-      .menu-item:first-child {
-        margin-top: 90%;
-      }
-      .menu-item-selected {
-        background-color: #ebeaea; /* Change background color to indicate selection */
-        color: #000; /* Change text color to improve contrast */
-        /* Add any other styles to indicate selection */
-      }
     }
-    .account-tab {
+    .search-tab {
       flex: 1;
       background-color: aqua;
       height: 100%;

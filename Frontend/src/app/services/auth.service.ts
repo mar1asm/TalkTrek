@@ -9,6 +9,7 @@ import { Store, select } from '@ngrx/store';
 import * as AuthActions from './../../store/actions/auth.actions';
 import * as authSelectors from './../../store/selectors/auth.selectors'
 import { response } from 'express';
+import { SecurityService } from './security.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,54 +17,14 @@ import { response } from 'express';
 export class AuthService {
   private apiRoot = 'https://localhost:7048';
   private apiUrl = '';
-  private isLoggedInSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private isLoggedInSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);// DEV ONLY CHANGE
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
-  constructor(private http: HttpClient, private store: Store<IAuthState>) { }
-
-  /*   encryptWithNonce(data: string, nonce: string): string {
-      // Convert nonce to WordArray
-      const nonceWordArray = CryptoJS.enc.Utf8.parse(nonce);
-  
-      // Generate a random initialization vector (IV)
-      const iv = CryptoJS.lib.WordArray.random(16); // 16 bytes (128 bits)
-  
-      // Encrypt data using AES encryption with CBC mode
-      const encryptedData = CryptoJS.AES.encrypt(data, nonceWordArray, {
-        iv: iv,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
-      });
-  
-      // Combine IV and encrypted data into a single string
-      const combinedData = CryptoJS.enc.Base64.stringify(iv.concat(encryptedData.ciphertext));
-  
-      // Return the combined data as a Base64-encoded string
-      return combinedData;
-    } */
+  constructor(private http: HttpClient, private securityService: SecurityService, private store: Store<IAuthState>) { }
 
 
-  encryptPassword(password: string, secretKey: string): string {
-    // Convert secret key to WordArray
-    let key = CryptoJS.enc.Utf8.parse(secretKey);
-
-    // Generate a random IV
-    let iv = CryptoJS.lib.WordArray.random(16); // 16 bytes (128 bits)
-
-    // Encrypt data using AES encryption with CBC mode and PKCS7 padding
-    let encryptedBytes = CryptoJS.AES.encrypt(password, key, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
-    });
-
-    // Combine IV and encrypted data into a single string
-    let encryptedPassword = CryptoJS.enc.Base64.stringify(iv.concat(encryptedBytes.ciphertext));
-
-    return encryptedPassword;
-  }
 
   async register(registerModel: RegisterModel) {
-    const encryptedPassword = await this.encryptPassword(registerModel.password, "abcdefghijklmnop");
+    const encryptedPassword = await this.securityService.encryptPassword(registerModel.password);
     console.log(encryptedPassword)
 
     const requestBody = {
@@ -99,7 +60,7 @@ export class AuthService {
 
 
   async login(loginModel: LoginModel): Promise<any> {
-    const encryptedPassword = await this.encryptPassword(loginModel.password, "abcdefghijklmnop");
+    const encryptedPassword = await this.securityService.encryptPassword(loginModel.password);
 
     const requestBody = {
       email: loginModel.email,

@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
 import { AuthComponent } from './components/auth/auth.component';
 import { AccountComponent } from './components/account/account.component';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
+import { PresentationComponent } from './presentation/presentation.component';
+import { SearchComponent } from './components/search/search.component';
 
 const routes: Routes = [
   {
@@ -21,7 +21,10 @@ const routes: Routes = [
     path: 'confirm-email', component: ConfirmEmailComponent
   },
   {
-    path: '', redirectTo: 'home', pathMatch: 'full'
+    path: 'search', component: SearchComponent
+  },
+  {
+    path: '', component: PresentationComponent
   },
   {
     path: '*', redirectTo: 'home'

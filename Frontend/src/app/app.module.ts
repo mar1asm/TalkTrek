@@ -16,6 +16,7 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatListModule } from '@angular/material/list';
 
 
 
@@ -29,6 +30,9 @@ import { authReducer } from '../store/reducers/auth.reducers';
 import { AccountDetailsComponent } from './components/account-details/account-details.component';
 import { AccountDashboardComponent } from './components/account-dashboard/account-dashboard.component';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
+import { PresentationComponent } from './presentation/presentation.component';
+import { ChangePasswordComponent } from './components/change-password/change-password.component';
+import { SearchComponent } from './components/search/search.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +44,10 @@ import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.
     AccountComponent,
     AccountDetailsComponent,
     AccountDashboardComponent,
-    ConfirmEmailComponent
+    ConfirmEmailComponent,
+    PresentationComponent,
+    ChangePasswordComponent,
+    SearchComponent
   ],
   imports: [
     BrowserModule,
@@ -51,7 +58,9 @@ import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.
     MatIconModule,
     MatButtonModule,
     MatRadioModule,
+    MatSidenavModule,
     MatFormFieldModule,
+    MatListModule,
     HttpClientModule,
     MatSidenavModule,
     StoreModule.forRoot({ auth: authReducer })

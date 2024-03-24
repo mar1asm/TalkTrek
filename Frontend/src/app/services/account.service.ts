@@ -3,6 +3,8 @@ import { UserModel } from '../models/user-model';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { Observable, switchMap, catchError, throwError, map, firstValueFrom } from 'rxjs';
+import { ChangePasswordModel } from '../models/change-password-model';
+import { SecurityService } from './security.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +12,7 @@ import { Observable, switchMap, catchError, throwError, map, firstValueFrom } fr
 export class AccountService {
   private apiRoot = 'https://localhost:7048';
   private apiUrl = '';
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient, private securityService: SecurityService, private authService: AuthService) { }
 
 
 
@@ -59,4 +61,52 @@ export class AccountService {
       return false; // Return false in case of any error
     }
   }
+
+  async updateProfilePhoto(photoFile: File) {
+    this.apiUrl = `${this.apiRoot}/account/photo`;
+    try {
+      const token = await firstValueFrom(this.authService.getToken());
+      const formData = new FormData();
+      formData.append('photo', photoFile);
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      await firstValueFrom(this.http.put(this.apiUrl, formData, { headers }));
+      return true;
+    } catch (error) {
+      console.error('Error updating profile photo:', error);
+      return false; // Return false in case of any error
+    }
+  }
+
+  async deleteProfilePhoto() {
+    this.apiUrl = `${this.apiRoot}/account/photo`;
+    try {
+      const token = await firstValueFrom(this.authService.getToken());
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      await firstValueFrom(this.http.delete(this.apiUrl, { headers }));
+      return true;
+    } catch (error) {
+      console.error('Error deleting profile photo:', error);
+      return false; // Return false in case of any error
+    }
+  }
+
+  async changePassword(changePasswordModel: ChangePasswordModel) {
+    this.apiUrl = `${this.apiRoot}/change-password`;
+    const encryptedOldPassword = await this.securityService.encryptPassword(changePasswordModel.oldPassword);
+    const encryptedNewPassword = await this.securityService.encryptPassword(changePasswordModel.newPassword);
+    const requestBody = {
+      oldPassword: encryptedOldPassword,
+      newPassword: encryptedNewPassword
+    };
+    try {
+      const token = await firstValueFrom(this.authService.getToken());
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      await firstValueFrom(this.http.put(this.apiUrl, requestBody, { headers }));
+      return true;
+    } catch (error) {
+      console.error('Error changing password:', error);
+      return false; // Return false in case of any error
+    }
+  }
+
 }

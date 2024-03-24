@@ -17,13 +17,18 @@
     margin-top: 10%;
   }
 
+  .mandatory {
+    color: red;
+    margin-left: 5px; /* Adjust spacing as needed */
+  }
+
   .ng-valid[required],
   .ng-valid.required {
-    border-left: 5px solid #42a948; /* green */
+    border-left: 5px solid green;
   }
 
   .ng-touched.ng-invalid:not(form) {
-    border-left: 5px solid #a94442; /* red */
+    border-left: 5px solid red;
   }
 }
 

@@ -4,16 +4,47 @@
 
   padding: 15px;
   border-radius: 5px;
-  background-color: whitesmoke;
+  background-color: white;
   height: 100%;
 
   .form-group {
-    margin-top: 7%;
-    width: 80%;
+    margin-top: 2%;
+    width: 60%;
+  }
+  .mandatory {
+    color: red;
+    margin-left: 5px; /* Adjust spacing as needed */
+  }
+
+  .profile-photo-selection {
+    display: flex;
+    flex-direction: column;
+
+    .profile-photo-title {
+      margin-bottom: 2.5%;
+    }
+
+    .form-control-file {
+      padding-top: 2.5%;
+    }
+    .profile-photo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%; /* Makes the image circular */
+      border: 1px solid black;
+    }
+
+    .delete-photo-button {
+      background-color: white;
+      border: none;
+      width: 5%;
+      font-weight: bold;
+      color: red;
+    }
   }
 
   .btn.btn-success {
-    margin-top: 10%;
+    margin-top: 5%;
     width: 8%;
   }
 

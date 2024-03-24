@@ -3,22 +3,36 @@
     <div [hidden]="isProfileComplete" class="incomplete-profile">
         Please fill in details before using the app
     </div>
+
+    <div class="form-group profile-photo-selection">
+        <label for="profile-photo" class="profile-photo-title">Profile Photo</label>
+
+        <img *ngIf="user.profilePhoto && isBase64String(user.profilePhoto)" [src]="user.profilePhoto"
+            class="profile-photo" alt="Profile Photo">
+        <img *ngIf="user.profilePhoto && !isBase64String(user.profilePhoto)"
+            [src]="'data:image/jpeg;base64,' + user.profilePhoto" class="profile-photo" alt="Profile Photo">
+        <button *ngIf="user.profilePhoto" class="delete-photo-button" (click)="deletePhoto()">X</button>
+        <input type="file" accept="image/*" class="form-control-file" id="profile-photo"
+            (change)="onFileSelected($event)">
+    </div>
+
+
     <div class="form-group">
-        <label for="firstName">First name</label>
+        <label for="firstName">First name <span class="mandatory">*</span></label>
         <input type="first-name" class="form-control" id="first-name" required name="firstName"
             [(ngModel)]="user.firstName" name="firstName">
     </div>
 
     <div class="form-group">
-        <label for="firstName">Last name</label>
+        <label for="firstName">Last name <span class="mandatory">*</span></label>
         <input type="first-name" class="form-control" id="last-name" required name="lastName"
             [(ngModel)]="user.lastName" name="lastName">
     </div>
 
     <div class="form-group">
         <label for="firstName">Email</label>
-        <input readOnly type="first-name" class="form-control" id="first-name" required name="firstName"
-            [(ngModel)]="user.email" name="email">
+        <input readOnly type="first-name" class="form-control" id="first-name" name="firstName" [(ngModel)]="user.email"
+            name="email">
     </div>
 
     <button type="submit" class="btn btn-success" [disabled]="!detailsForm.form.valid">Save</button>

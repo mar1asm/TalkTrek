@@ -10,6 +10,7 @@ export interface UserModel {
     email: string;
     userType: string;
     registrationDate: string;
+    profilePhoto: any
 }
 
 export interface StudentModel extends UserModel {
