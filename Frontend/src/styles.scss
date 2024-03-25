@@ -16,7 +16,3 @@ app-root {
   flex-direction: column;
   height: 100%;
 }
-
-::ng-deep .mat-radio-button.mat-accent .mat-radio-inner-circle {
-  background-color: #ff0000; /* Change to your custom color */
-}

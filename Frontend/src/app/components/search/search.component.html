@@ -1,21 +1,209 @@
 <div class="search-page">
-    <mat-drawer-container class="container-nav mat-typography">
-        <mat-drawer class="nav-drawer" #drawer mode="side" opened="true">
+    <mat-sidenav-container class="container-nav mat-typography">
+        <mat-sidenav class="nav-sidenav" #sidenav mode="side" [opened]="isFiltersPaneOpened"
+            [class.sidenav-opened]="isFiltersPaneOpened">
+
             <mat-nav-list class="filters-pane">
-                <button mat-button class="filter-item">
-                    aaa
-                    <!-- <mat-icon iconPositionEnd>{{tab.icon}}</mat-icon> -->
-                </button>
+                <div class="filter-item">
+                    <div class="filter-item-label">Language</div>
+                    <mat-form-field>
+                        <mat-label>Select an option</mat-label>
+                        <mat-select [(value)]="selectedLanguage">
+                            <mat-option *ngFor="let language of languages " [value]="language">{{language}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="filter-item">
+                    <div class="filter-item-label">Category</div>
+                    <mat-form-field>
+                        <mat-label>Select an option</mat-label>
+                        <mat-select [(value)]="selectedlanguageCategory">
+                            <mat-option *ngFor="let languageCategory of languageCategories "
+                                [value]="languageCategory">{{languageCategory}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="filter-item">
+                    <div class="filter-item-label">Also speaks</div>
+                    <mat-form-field>
+                        <mat-label>Select at least one option</mat-label>
+                        <mat-select [(value)]="selectedOtherLanguages" multiple>
+                            <mat-option *ngFor="let otherLanguage of filterMainLanguage(otherLanguages)"
+                                [value]="otherLanguage">{{otherLanguage}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <div class="filter-item">
+                    <div class="filter-item-label">Price</div>
+                    <mat-slider class="price-slider" [min]="minPossiblePrice" [max]="maxPossiblePrice" discrete>
+
+                        <input [(value)]="minSelectedPrice" matSliderStartThumb>
+                        <input [(value)]="maxSelectedPrice" matSliderEndThumb>
+                    </mat-slider>
+                </div>
+
+                <div class="filter-item">
+                    <div class="filter-item-label">Minimum rating</div>
+                    <mat-form-field>
+                        <mat-label>Select an option</mat-label>
+                        <mat-select [(value)]="selectedMinimumRating">
+                            <mat-option>
+                                Any
+                            </mat-option>
+                            <mat-option *ngFor="let minimumRating of minimumRatings" [value]="minimumRating">
+                                <mat-icon
+                                    *ngFor="let star of [].constructor(minimumRating  - minimumRating % 1 )">star</mat-icon>
+                                <mat-icon *ngIf="minimumRating % 1 !== 0">star_half</mat-icon>
+                                <mat-icon *ngFor=" let star of [].constructor(5 - (minimumRating + minimumRating % 1))">
+                                    star_border</mat-icon>
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="filter-item">
+                    <div class="filter-item-label">Availability</div>
+                    <mat-form-field>
+                        <mat-label>Select an option</mat-label>
+
+                        <mat-select [(value)]="selectedIntervals" multiple>
+                            <mat-select-trigger>
+                                <ng-container
+                                    *ngIf="selectedIntervals.length>0 && selectedIntervals.length !== availabilityIntervals.length">
+                                    {{ selectedIntervals[0]}}
+
+                                    <ng-container *ngIf="selectedIntervals.length > 1 ">
+                                        <span class="additional-selection">
+                                            (+{{ selectedIntervals.length - 1 }}
+                                            {{ selectedIntervals.length === 2 ? 'other' : 'others' }})
+                                        </span>
+                                    </ng-container>
+                                </ng-container>
+                                <ng-container
+                                    *ngIf="(selectedIntervals.length == availabilityIntervals.length) || (selectedIntervals.length == 0)">
+                                    <span class="all-selected">
+                                        Any
+                                    </span>
+                                </ng-container>
+                            </mat-select-trigger>
+                            <mat-option *ngFor="let interval of availabilityIntervals"
+                                [value]="interval">{{interval}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+
+                    <div class="filter-item">
+                        <div class="filter-item-label">Minimum experience</div>
+                        <mat-form-field>
+                            <mat-label>Select an option</mat-label>
+                            <mat-select [(value)]="selectedMinimumExperience">
+                                <mat-option *ngFor="let experience of minimumExperience "
+                                    [value]="experience">{{experience}}
+                                    {{ experience === 1 ? 'year' : 'years'}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+
+                </div>
             </mat-nav-list>
-        </mat-drawer>
+        </mat-sidenav>
 
-        <div class="search-tab">
-            <!-- Use *ngIf to conditionally render the selected tab component -->
-            <ng-container>
 
-                bbb
-            </ng-container>
-        </div>
-    </mat-drawer-container>
+
+        <mat-sidenav-content class="search-tab">
+            <div class="arrow-toggle-sidenav" (click)="onToggleFilterPane()">
+                <mat-icon *ngIf="isFiltersPaneOpened">
+                    keyboard_arrow_left
+                </mat-icon>
+                <mat-icon *ngIf="!isFiltersPaneOpened">
+                    keyboard_arrow_right
+                </mat-icon>
+            </div>
+            <div class="tutors-list">
+                <div class="tutor-card" *ngFor=" let item of [].constructor(10); let i = index" id="tutor-card{{i}}">
+
+                    <div class="tutor-card-data">
+                        <img class="tutor-card-image" mat-card-image src="../../../assets/profile-pic.jpg"
+                            alt="tutor-image">
+                        <div class="tutor-card-details" [class.expanded]="isDescriptionExpanded[i]"
+                            [class.hidden]="!isDescriptionExpanded[i]">
+                            <div class="tutor-card-details-name">
+                                Montana Loafy Landers
+                            </div>
+
+                            <div class="tutor-card-details-group">
+                                <div class="tutor-card-details-item education">
+                                    <mat-icon inline=true>school</mat-icon>
+                                    <p>Some school or certf</p>
+                                </div>
+
+
+                                <div class="tutor-card-details-item languages">
+                                    <mat-icon inline=true>language</mat-icon>
+                                    <p>English(80-20), Romanian(50-50)</p>
+                                </div>
+
+                                <div class="tutor-card-details-item location">
+                                    <mat-icon inline=true>location_on</mat-icon>
+                                    <p>UK</p>
+                                </div>
+                            </div>
+                            <div class="tutor-card-details-item description"
+                                [class.expanded]="isDescriptionExpanded[i] && isDescriptionOverflow[i]"
+                                [class.hidden]="!isDescriptionExpanded[i] && isDescriptionOverflow[i]" #descriptionRef>
+                                {{descriptions[i]}}
+                            </div>
+                            <div *ngIf="isDescriptionOverflow[i]" class="tutor-card-details-button-container">
+                                <button mat-button class="tutor-card-details-button"
+                                    (click)="onToggleDescription(i)">Show
+                                    {{isDescriptionExpanded[i]?
+                                    'less':'more'}}</button>
+                            </div>
+                        </div>
+
+                        <div class="tutor-card-info">
+                            <div class="tutor-card-info-price">Lions 200/hr</div>
+
+
+
+                            <div class="tutor-card-info-joined">
+                                <p>Joined: March 2024</p>
+                            </div>
+
+                            <div class="tutor-card-info-classes">
+                                <p>30 classes</p>
+                            </div>
+
+                            <div class="tutor-card-info-rating">
+                                <mat-icon inline=true>star</mat-icon>
+                                <p>4.99/5</p>
+                            </div>
+
+                            <div class="tutor-card-info-reviews">
+                                <p>20 reviews</p>
+                            </div>
+
+                            <button mat-flat-button class="tutor-card-button see-more" color="accent"
+                                [routerLink]="'/tutor/'+ i"> Profile
+                            </button>
+                            <button mat-flat-button class="tutor-card-button book" color="primary"
+                                [routerLink]="'/tutor/' + i + '#book'"> Book
+                            </button>
+                        </div>
+                    </div>
+                    <!-- <div class="tutor-card-calendar" id="tutor-card-calendar{{i}}">
+                        <mat-card class="calendar-card">
+                            <mat-calendar [minDate]="startDateCalendar" [maxDate]="endDateCalendar"></mat-calendar>
+                        </mat-card>
+                    </div> -->
+                </div>
+            </div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+
 
 </div>

@@ -7,25 +7,151 @@
   .container-nav {
     height: 100%;
     width: 100%;
-
-    .filters-pane {
+    background-color: white;
+    .nav-sidenav {
+      width: 20%;
       display: flex;
-      flex-direction: column;
-      height: 100%;
-      padding: 0%;
-      width: 25%;
-      .filter-item {
-        height: 10%;
+      .filters-pane {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-radius: 0%;
+        flex-direction: column;
+        width: 100%;
+        padding: 5%;
+        .filter-item {
+          padding-top: 5%;
+          min-height: 15%;
+          display: flex;
+          border-radius: 0%;
+          width: 100%;
+          flex-direction: column;
+          .filter-item-label {
+            font-weight: 500;
+            padding-bottom: 3%;
+          }
+        }
       }
     }
     .search-tab {
       flex: 1;
-      background-color: aqua;
       height: 100%;
+      display: flex;
+      flex-direction: row;
+      .arrow-toggle-sidenav {
+        display: flex;
+        align-items: center;
+      }
+      .tutors-list {
+        background: white;
+        display: flex;
+        flex-direction: column;
+        align-items: left;
+        padding-left: 50px;
+        width: 100%;
+        height: 100%;
+        overflow-y: scroll;
+        .tutor-card {
+          width: 95%;
+          display: flex;
+
+          .tutor-card-data {
+            border-left: 1px solid lightgrey;
+            border-top: 1px solid lightgrey;
+            border-bottom: 1px solid lightgrey;
+            border-right: 1px solid lightgrey;
+            border-radius: 5px;
+            background-color: white;
+            display: flex;
+            width: 100%;
+            flex-direction: row;
+            margin-top: 20px;
+
+            .tutor-card-image {
+              height: 275px;
+            }
+
+            .tutor-card-details.hidden {
+              height: 275px;
+            }
+
+            .tutor-card-details {
+              padding: 10px;
+              width: 70%;
+              border-right: 1px dotted lightgray;
+              .tutor-card-details-name {
+                font-size: x-large;
+                font-weight: bold;
+                margin-bottom: 10px;
+              }
+              .tutor-card-details-group {
+                height: 125px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+
+                .tutor-card-details-item {
+                  display: flex;
+                  flex-direction: row;
+                  mat-icon {
+                    margin-right: 2px;
+                  }
+                }
+              }
+              .tutor-card-details-item.description {
+                height: 30%;
+              }
+              .tutor-card-details-item.description.hidden {
+                height: 25%;
+                overflow-y: hidden;
+              }
+              .tutor-card-details-item.description.expanded {
+                height: fit-content;
+                overflow-y: visible;
+              }
+              .tutor-card-details-button-container {
+                display: flex;
+                justify-content: right;
+                .tutor-card-details-button {
+                }
+              }
+            }
+
+            .tutor-card-info {
+              height: 275px;
+              width: 30%;
+              padding: 10px;
+              display: flex;
+              flex-direction: column;
+              .tutor-card-info-price {
+                font-size: large;
+                font-weight: bold;
+                margin-bottom: 20px;
+              }
+              .tutor-card-info-rating {
+                display: flex;
+                flex-direction: row;
+              }
+              .tutor-card-button {
+                margin: 2px;
+              }
+            }
+          }
+        }
+        /* [id^="tutor-card-calendar"] {
+          display: none;
+        }
+
+        [id^="tutor-card"]:hover + [id^="tutor-card-calendar"] {
+          display: flex;
+          width: 30%;
+          margin-top: 20px;
+          align-items: center;
+        }
+
+        [id^="tutor-card"]:hover + [id^="tutor-card-calendar"] .calendar-card {
+          width: 60%;
+          margin-left: 10%;
+          padding: 0;
+        } */
+      }
     }
   }
 }

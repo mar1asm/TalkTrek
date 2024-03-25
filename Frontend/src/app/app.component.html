@@ -30,7 +30,6 @@
     <mat-drawer-container class="container-nav mat-typography" autosize>
       <mat-drawer #drawer mode="side" disableClose="true" [opened]="isLoggedIn">
 
-
         <mat-nav-list class="sidenavList">
 
           <button mat-button *ngFor="let tab of tabsArray" (click)="onChangeTab(tab.key)" class="sidenav-item"

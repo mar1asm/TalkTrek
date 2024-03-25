@@ -7,6 +7,16 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { AccountComponent } from './components/account/account.component';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
+import { AuthComponent } from './components/auth/auth.component';
+import { AccountDetailsComponent } from './components/account-details/account-details.component';
+import { AccountDashboardComponent } from './components/account-dashboard/account-dashboard.component';
+import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
+import { PresentationComponent } from './presentation/presentation.component';
+import { ChangePasswordComponent } from './components/change-password/change-password.component';
+import { SearchComponent } from './components/search/search.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,22 +27,18 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatListModule } from '@angular/material/list';
-
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatCardModule } from '@angular/material/card';
 
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
-import { AuthComponent } from './components/auth/auth.component';
 import { HttpClientModule } from '@angular/common/http';
 import { StoreModule } from '@ngrx/store';
 import { authReducer } from '../store/reducers/auth.reducers';
-import { AccountDetailsComponent } from './components/account-details/account-details.component';
-import { AccountDashboardComponent } from './components/account-dashboard/account-dashboard.component';
-import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
-import { PresentationComponent } from './presentation/presentation.component';
-import { ChangePasswordComponent } from './components/change-password/change-password.component';
-import { SearchComponent } from './components/search/search.component';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { TutorComponent } from './components/tutor/tutor.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +53,9 @@ import { SearchComponent } from './components/search/search.component';
     ConfirmEmailComponent,
     PresentationComponent,
     ChangePasswordComponent,
-    SearchComponent
+    SearchComponent,
+    PageNotFoundComponent,
+    TutorComponent
   ],
   imports: [
     BrowserModule,
@@ -61,14 +69,19 @@ import { SearchComponent } from './components/search/search.component';
     MatSidenavModule,
     MatFormFieldModule,
     MatListModule,
+    MatSelectModule,
     HttpClientModule,
     MatSidenavModule,
+    MatSliderModule,
+    MatDatepickerModule,
+    MatCardModule,
     StoreModule.forRoot({ auth: authReducer })
 
   ],
   providers: [
     provideClientHydration(),
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    provideNativeDateAdapter()
   ],
   bootstrap: [AppComponent]
 })

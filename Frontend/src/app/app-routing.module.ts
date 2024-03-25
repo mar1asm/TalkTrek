@@ -6,8 +6,13 @@ import { AccountComponent } from './components/account/account.component';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { PresentationComponent } from './presentation/presentation.component';
 import { SearchComponent } from './components/search/search.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { TutorComponent } from './components/tutor/tutor.component';
 
 const routes: Routes = [
+  {
+    path: '', component: PresentationComponent, pathMatch: 'full'
+  },
   {
     path: 'home', component: HomeComponent
   },
@@ -24,10 +29,18 @@ const routes: Routes = [
     path: 'search', component: SearchComponent
   },
   {
-    path: '', component: PresentationComponent
+    path: '', component: PresentationComponent, pathMatch: 'full'
   },
   {
-    path: '*', redirectTo: 'home'
+    path: 'tutor/:id', component: TutorComponent
+  },
+
+  {
+    path: 'not-found', component: PageNotFoundComponent
+  },
+  {
+    path: '**',
+    redirectTo: '/not-found'
   }
 ];
 
