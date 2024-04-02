@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TutorModel } from '../../models/tutor-model';
+import { TutorService } from '../../services/tutor.service';
+
 
 @Component({
   selector: 'app-tutor',
@@ -7,6 +10,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./tutor.component.scss']
 })
 export class TutorComponent implements OnInit {
+
   id: string | null = null;
 
   startDateCalendar = new Date()
@@ -29,13 +33,36 @@ export class TutorComponent implements OnInit {
       message: ''
     };
 
+  tutor: TutorModel = {
+    id: '',
+    firstName: '',
+    lastName: '',
+    photo: '',
+    description: '',
+    country: '',
+    price: 0,
+    teachedLanguage: '',
+    teachingCategories: [],
+    additionalLanguages: [],
+    accountCreationDate: new Date(),
+    availabilityIntervals: [],
+    rating: 0,
+    reviews: 0,
+    education: ''
+  }
 
-  constructor(private route: ActivatedRoute) { }
+
+  constructor(private route: ActivatedRoute, private tutorService: TutorService) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.id = params['id'];
     });
+
+    this.tutorService.getTutor().subscribe(tutor => {
+      this.tutor = tutor as TutorModel;
+    });
+
   }
 
   selectTime(time: string) {

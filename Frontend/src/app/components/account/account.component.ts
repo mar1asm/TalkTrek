@@ -2,8 +2,8 @@ import { AuthService } from './../../services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AccountDetailsComponent } from '../account-details/account-details.component';
-import { AccountDashboardComponent } from '../account-dashboard/account-dashboard.component';
 import { ChangePasswordComponent } from '../change-password/change-password.component';
+import { TutorProfileDetailsComponent } from '../tutor-profile-details/tutor-profile-details.component';
 
 interface Tab {
   key: string;
@@ -15,6 +15,7 @@ interface Tab {
 
 export const tabs: Map<string, Tab> = new Map<string, Tab>([
   ['account-details', { key: 'account-details', name: 'Details', component: AccountDetailsComponent, icon: 'account_box' }],
+  ['tutor-profile', { key: 'tutor-profile', name: 'Profile', component: TutorProfileDetailsComponent, icon: 'account_box' }],
   ['change-password', { key: 'change-password', name: 'Change password', component: ChangePasswordComponent, icon: 'history' }],
   ['payment-methods', { key: 'payment-methods', name: 'Payment methods', component: AccountDetailsComponent, icon: 'account_balance_wallet' }],
   ['payment-history', { key: 'payment-history', name: 'Payment history', component: AccountDetailsComponent, icon: 'settings' }]

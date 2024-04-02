@@ -8,8 +8,9 @@
                     <div class="filter-item-label">Language</div>
                     <mat-form-field>
                         <mat-label>Select an option</mat-label>
-                        <mat-select [(value)]="selectedLanguage">
-                            <mat-option *ngFor="let language of languages " [value]="language">{{language}}</mat-option>
+                        <mat-select [(value)]="selectedFilters.language" (selectionChange)="filterTutors()">
+                            <mat-option *ngFor="let language of availableLanguages "
+                                [value]="language">{{language}}</mat-option>
                         </mat-select>
                     </mat-form-field>
                 </div>
@@ -18,8 +19,8 @@
                     <div class="filter-item-label">Category</div>
                     <mat-form-field>
                         <mat-label>Select an option</mat-label>
-                        <mat-select [(value)]="selectedlanguageCategory">
-                            <mat-option *ngFor="let languageCategory of languageCategories "
+                        <mat-select [(value)]="selectedFilters.teachingCategory" (selectionChange)="filterTutors()">
+                            <mat-option *ngFor="let languageCategory of availableCategories "
                                 [value]="languageCategory">{{languageCategory}}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -29,8 +30,9 @@
                     <div class="filter-item-label">Also speaks</div>
                     <mat-form-field>
                         <mat-label>Select at least one option</mat-label>
-                        <mat-select [(value)]="selectedOtherLanguages" multiple>
-                            <mat-option *ngFor="let otherLanguage of filterMainLanguage(otherLanguages)"
+                        <mat-select [(value)]="selectedFilters.otherLanguages" multiple
+                            (selectionChange)="filterTutors()">
+                            <mat-option *ngFor="let otherLanguage of filterOutMainLanguage(availableOtherLanguages)"
                                 [value]="otherLanguage">{{otherLanguage}}</mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -38,10 +40,11 @@
 
                 <div class="filter-item">
                     <div class="filter-item-label">Price</div>
-                    <mat-slider class="price-slider" [min]="minPossiblePrice" [max]="maxPossiblePrice" discrete>
+                    <mat-slider class="price-slider" [min]="availablePriceRange.min" [max]="availablePriceRange.max"
+                        discrete (change)="filterTutors()">
 
-                        <input [(value)]="minSelectedPrice" matSliderStartThumb>
-                        <input [(value)]="maxSelectedPrice" matSliderEndThumb>
+                        <input [(value)]="selectedFilters.priceRange.min" matSliderStartThumb>
+                        <input [(value)]="selectedFilters.priceRange.max" matSliderEndThumb>
                     </mat-slider>
                 </div>
 
@@ -49,21 +52,23 @@
                     <div class="filter-item-label">Minimum rating</div>
                     <mat-form-field>
                         <mat-label>Select an option</mat-label>
-                        <mat-select [(value)]="selectedMinimumRating">
-                            <mat-option>
-                                Any
-                            </mat-option>
+                        <mat-select [(value)]="selectedFilters.minRating" (selectionChange)="filterTutors()">
+
                             <mat-option *ngFor="let minimumRating of minimumRatings" [value]="minimumRating">
+                                {{ minimumRating ? minimumRating : 'Any' }}
+                            </mat-option>
+
+                            <!-- <mat-option *ngFor="let minimumRating of minimumRatings" [value]="minimumRating">
                                 <mat-icon
                                     *ngFor="let star of [].constructor(minimumRating  - minimumRating % 1 )">star</mat-icon>
                                 <mat-icon *ngIf="minimumRating % 1 !== 0">star_half</mat-icon>
                                 <mat-icon *ngFor=" let star of [].constructor(5 - (minimumRating + minimumRating % 1))">
                                     star_border</mat-icon>
-                            </mat-option>
+                            </mat-option> -->
                         </mat-select>
                     </mat-form-field>
                 </div>
-                <div class="filter-item">
+                <!-- <div class="filter-item">
                     <div class="filter-item-label">Availability</div>
                     <mat-form-field>
                         <mat-label>Select an option</mat-label>
@@ -108,7 +113,7 @@
                     </div>
 
 
-                </div>
+                </div> -->
             </mat-nav-list>
         </mat-sidenav>
 
@@ -124,54 +129,55 @@
                 </mat-icon>
             </div>
             <div class="tutors-list">
-                <div class="tutor-card" *ngFor=" let item of [].constructor(10); let i = index" id="tutor-card{{i}}">
+                <div class="tutor-card" *ngFor=" let tutor of filteredTutors; let i = index" id="tutor-card{{i}}">
 
                     <div class="tutor-card-data">
-                        <img class="tutor-card-image" mat-card-image src="../../../assets/profile-pic.jpg"
-                            alt="tutor-image">
-                        <div class="tutor-card-details" [class.expanded]="isDescriptionExpanded[i]"
-                            [class.hidden]="!isDescriptionExpanded[i]">
+                        <img class="tutor-card-image" mat-card-image src="{{tutor.photo}}" alt="tutor-image">
+                        <div class="tutor-card-details" [class.expanded]="isDescriptionExpanded.get(tutor.id)"
+                            [class.hidden]="!isDescriptionExpanded.get(tutor.id)">
                             <div class="tutor-card-details-name">
-                                Montana Loafy Landers
+                                {{tutor.firstName}}
                             </div>
 
                             <div class="tutor-card-details-group">
                                 <div class="tutor-card-details-item education">
                                     <mat-icon inline=true>school</mat-icon>
-                                    <p>Some school or certf</p>
+                                    <p>{{tutor.education}}</p>
                                 </div>
 
 
                                 <div class="tutor-card-details-item languages">
                                     <mat-icon inline=true>language</mat-icon>
-                                    <p>English(80-20), Romanian(50-50)</p>
+                                    <div>{{ tutor.additionalLanguages | levelDescription }}</div>
                                 </div>
 
                                 <div class="tutor-card-details-item location">
                                     <mat-icon inline=true>location_on</mat-icon>
-                                    <p>UK</p>
+                                    <p>{{tutor.country}}</p>
                                 </div>
                             </div>
                             <div class="tutor-card-details-item description"
-                                [class.expanded]="isDescriptionExpanded[i] && isDescriptionOverflow[i]"
-                                [class.hidden]="!isDescriptionExpanded[i] && isDescriptionOverflow[i]" #descriptionRef>
-                                {{descriptions[i]}}
+                                [class.expanded]="isDescriptionExpanded.get(tutor.id) && isDescriptionOverflow.get(tutor.id) "
+                                [class.hidden]="!isDescriptionExpanded.get(tutor.id)  && isDescriptionOverflow.get(tutor.id) "
+                                #descriptionRef [id]="'description-' + tutor.id">
+                                {{tutor.description}}
                             </div>
-                            <div *ngIf="isDescriptionOverflow[i]" class="tutor-card-details-button-container">
+                            <div *ngIf="isDescriptionOverflow.get(tutor.id) "
+                                class="tutor-card-details-button-container">
                                 <button mat-button class="tutor-card-details-button"
-                                    (click)="onToggleDescription(i)">Show
-                                    {{isDescriptionExpanded[i]?
+                                    (click)="onToggleDescription(tutor.id)">Show
+                                    {{isDescriptionExpanded.get(tutor.id)?
                                     'less':'more'}}</button>
                             </div>
                         </div>
 
                         <div class="tutor-card-info">
-                            <div class="tutor-card-info-price">Lions 200/hr</div>
+                            <div class="tutor-card-info-price">Lions {{ tutor.price }}/hr</div>
 
 
 
                             <div class="tutor-card-info-joined">
-                                <p>Joined: March 2024</p>
+                                <p>Joined: {{tutor.accountCreationDate | date: "MMMM yyyy"}}</p>
                             </div>
 
                             <div class="tutor-card-info-classes">
@@ -180,19 +186,21 @@
 
                             <div class="tutor-card-info-rating">
                                 <mat-icon inline=true>star</mat-icon>
-                                <p>4.99/5</p>
+                                <p>{{tutor.rating}}/5</p>
                             </div>
 
                             <div class="tutor-card-info-reviews">
-                                <p>20 reviews</p>
+                                <p>{{tutor.reviews}} reviews</p>
                             </div>
+                            <div class="tutor-card-info-buttons-container">
 
-                            <button mat-flat-button class="tutor-card-button see-more" color="accent"
-                                [routerLink]="'/tutor/'+ i"> Profile
-                            </button>
-                            <button mat-flat-button class="tutor-card-button book" color="primary"
+                                <button mat-flat-button class="tutor-card-button profile" color="accent"
+                                    (click)="onTutorProfileButtonClicked(i)"> Profile
+                                </button>
+                                <!-- <button mat-flat-button class="tutor-card-button book" color="primary"
                                 [routerLink]="'/tutor/' + i + '#book'"> Book
-                            </button>
+                            </button> -->
+                            </div>
                         </div>
                     </div>
                     <!-- <div class="tutor-card-calendar" id="tutor-card-calendar{{i}}">

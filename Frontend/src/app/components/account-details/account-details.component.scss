@@ -10,6 +10,8 @@
   .form-group {
     margin-top: 2%;
     width: 60%;
+    display: flex;
+    flex-direction: column;
   }
   .mandatory {
     color: red;

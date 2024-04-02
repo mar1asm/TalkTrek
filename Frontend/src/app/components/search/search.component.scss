@@ -89,9 +89,10 @@
 
                 .tutor-card-details-item {
                   display: flex;
+                  height: 50%;
                   flex-direction: row;
                   mat-icon {
-                    margin-right: 2px;
+                    margin-right: 5px;
                   }
                 }
               }
@@ -109,6 +110,7 @@
               .tutor-card-details-button-container {
                 display: flex;
                 justify-content: right;
+                bottom: 0;
                 .tutor-card-details-button {
                 }
               }
@@ -131,6 +133,15 @@
               }
               .tutor-card-button {
                 margin: 2px;
+              }
+              .tutor-card-info-buttons-container {
+                flex: 1;
+                display: flex;
+                flex-direction: column-reverse;
+              }
+              .tutor-card-button.profile {
+                width: 100%;
+                bottom: 0;
               }
             }
           }

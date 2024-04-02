@@ -16,6 +16,11 @@
             (change)="onFileSelected($event)">
     </div>
 
+    <div class="form-group">
+        <label for="firstName">Email</label>
+        <input readOnly type="first-name" class="form-control" id="first-name" name="firstName" [(ngModel)]="user.email"
+            name="email">
+    </div>
 
     <div class="form-group">
         <label for="firstName">First name <span class="mandatory">*</span></label>
@@ -30,9 +35,9 @@
     </div>
 
     <div class="form-group">
-        <label for="firstName">Email</label>
-        <input readOnly type="first-name" class="form-control" id="first-name" name="firstName" [(ngModel)]="user.email"
-            name="email">
+        <label for="country">Country <span class="mandatory">*</span></label>
+        <mat-select-country>
+        </mat-select-country>
     </div>
 
     <button type="submit" class="btn btn-success" [disabled]="!detailsForm.form.valid">Save</button>

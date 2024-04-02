@@ -21,4 +21,6 @@ export class UserService {
       throw error; // Re-throw the error so the caller can handle it
     }
   }
+
+  async getTutor(id: string) { }
 }

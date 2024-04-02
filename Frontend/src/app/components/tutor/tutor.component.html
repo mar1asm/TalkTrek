@@ -2,37 +2,33 @@
     <div class="tutor-container">
         <div class="tutor-card">
             <div class="tutor-card-header">
-                <img class="tutor-card-image" mat-card-image src="../../../assets/profile-pic.jpg" alt="tutor-image">
+                <img class="tutor-card-image" mat-card-image src="{{tutor.photo}}" alt="tutor-image">
                 <div class="tutor-card-details">
                     <div class="tutor-card-details-name">
-                        Montana Loafy Landers
+                        {{tutor.firstName}}
                     </div>
 
                     <div class="tutor-card-details-group">
                         <div class="tutor-card-details-item education">
                             <mat-icon inline=true>school</mat-icon>
-                            <p>Some school or certf</p>
+                            <p>{{tutor.education}}</p>
                         </div>
 
 
                         <div class="tutor-card-details-item languages">
                             <mat-icon inline=true>language</mat-icon>
-                            <p>English(80-20), Romanian(50-50)</p>
+                            <p>{{ tutor.additionalLanguages | levelDescription }}</p>
                         </div>
 
                         <div class="tutor-card-details-item location">
                             <mat-icon inline=true>location_on</mat-icon>
-                            <p>UK</p>
+                            <p>{{tutor.country}}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Id vel magni soluta ab
-                excepturi quisquam voluptas, odit nemo nobis. Velit, delectus? Asperiores quam consequatur laboriosam
-                vel at eum sunt nostrum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate obcaecati
-                quaerat ipsam quibusdam soluta voluptates laborum enim explicabo molestias magnam quo exercitationem ab
-                optio, asperiores amet odio voluptas, veniam repellendus.</div>
+            <div class="description">{{tutor.description}}</div>
         </div>
         <div class="tutor-booking">
             <div class="tutor-calendar">

@@ -11,7 +11,6 @@ import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthComponent } from './components/auth/auth.component';
 import { AccountDetailsComponent } from './components/account-details/account-details.component';
-import { AccountDashboardComponent } from './components/account-dashboard/account-dashboard.component';
 import { ConfirmEmailComponent } from './components/confirm-email/confirm-email.component';
 import { PresentationComponent } from './presentation/presentation.component';
 import { ChangePasswordComponent } from './components/change-password/change-password.component';
@@ -31,6 +30,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatCardModule } from '@angular/material/card';
+import { MatSelectCountryModule } from "@angular-material-extensions/select-country";
 
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -39,6 +39,8 @@ import { StoreModule } from '@ngrx/store';
 import { authReducer } from '../store/reducers/auth.reducers';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { TutorComponent } from './components/tutor/tutor.component';
+import { LevelDescriptionPipe } from './pipes/level-description.pipe';
+import { TutorProfileDetailsComponent } from './components/tutor-profile-details/tutor-profile-details.component';
 
 @NgModule({
   declarations: [
@@ -49,13 +51,14 @@ import { TutorComponent } from './components/tutor/tutor.component';
     AuthComponent,
     AccountComponent,
     AccountDetailsComponent,
-    AccountDashboardComponent,
     ConfirmEmailComponent,
     PresentationComponent,
     ChangePasswordComponent,
     SearchComponent,
     PageNotFoundComponent,
-    TutorComponent
+    TutorComponent,
+    LevelDescriptionPipe,
+    TutorProfileDetailsComponent
   ],
   imports: [
     BrowserModule,
@@ -75,6 +78,7 @@ import { TutorComponent } from './components/tutor/tutor.component';
     MatSliderModule,
     MatDatepickerModule,
     MatCardModule,
+    MatSelectCountryModule.forRoot('en'),
     StoreModule.forRoot({ auth: authReducer })
 
   ],

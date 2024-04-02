@@ -17,7 +17,8 @@ export class AccountDetailsComponent implements OnInit {
     email: '',
     userType: '',
     registrationDate: '',
-    profilePhoto: null
+    profilePhoto: null,
+    country: ''
   }
 
   isProfileComplete: Boolean = false;
