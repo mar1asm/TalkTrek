@@ -9,10 +9,10 @@ namespace Learning_platform.Controllers
     [Route("api/[controller]")]
     public class StudentsController : Controller
     {
-        private readonly IStudentRepository _studentRepository;
+        private readonly StudentRepository _studentRepository;
         private readonly IMapper _mapper;
 
-        public StudentsController(IStudentRepository studentRepository, IMapper mapper)
+        public StudentsController(StudentRepository studentRepository, IMapper mapper)
         {
             _studentRepository = studentRepository ?? 
                 throw new ArgumentNullException(nameof(studentRepository));
@@ -23,7 +23,7 @@ namespace Learning_platform.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StudentDto>>> GetAllUsers() 
         {
-            var studentEntities = await _studentRepository.GetUsersAsync();
+            var studentEntities = await _studentRepository.GetStudentsAsync();
             return Ok(_mapper.Map<IEnumerable<StudentDto>>(studentEntities));
         }
 

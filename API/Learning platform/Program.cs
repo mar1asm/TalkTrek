@@ -78,9 +78,11 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<Security>();
 
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ITutorRepository, TutorRepository>();
-builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped< UserRepository>();
+builder.Services.AddScoped< TutorRepository>();
+builder.Services.AddScoped< StudentRepository>();
+builder.Services.AddScoped<MessageRepository>();
+builder.Services.AddScoped<LanguageRepository>();
 
 builder.Services.AddHttpClient<EmailConfirmationClient>(client =>
 {
@@ -148,6 +150,61 @@ using (var scope = app.Services.CreateScope())
     await SeedRoles(roleManager);
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var messageRepository = scope.ServiceProvider.GetRequiredService<MessageRepository>();
+    await SeedMessageTypes(messageRepository);
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var languageRepository = scope.ServiceProvider.GetRequiredService<LanguageRepository>();
+    await SeedTeachingCategories(languageRepository);
+}
+
+
+async Task SeedMessageTypes(MessageRepository messageRepository)
+{
+    if (await messageRepository.GetContentTypeAsync("Text") == null)
+    {
+        await messageRepository.CreateContentTypeAsync("Text");
+    }
+
+    if (await messageRepository.GetContentTypeAsync("Image") == null)
+    {
+        await messageRepository.CreateContentTypeAsync("Image");
+    }
+
+    if (await messageRepository.GetContentTypeAsync("Video") == null)
+    {
+        await messageRepository.CreateContentTypeAsync("Video");
+    }
+
+    if (await messageRepository.GetContentTypeAsync("Voice message") == null)
+    {
+        await messageRepository.CreateContentTypeAsync("Voice message");
+    }
+
+
+    // Add other content types similarly if needed
+}
+
+async Task SeedTeachingCategories (LanguageRepository languageRepository)
+{
+
+    if (await languageRepository.GetTeachingCategoryAsync("Conversational") == null)
+    {
+        await languageRepository.CreateTeachingCategoryAsync("Conversational");
+    }
+    if (await languageRepository.GetTeachingCategoryAsync("Business") == null)
+    {
+        await languageRepository.CreateTeachingCategoryAsync("Business");
+    }
+    if (await languageRepository.GetTeachingCategoryAsync("Language exam") == null)
+    {
+        await languageRepository.CreateTeachingCategoryAsync("Language exam");
+    }
+}
 async Task SeedRoles(RoleManager<IdentityRole> roleManager)
 {
     // Check if roles exist, if not, create them

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Learning_platform.Models
 {
-    public class ContentTypeDto
+    public class MessageContentTypeDto
     {
         public int Id { get; set; }
         public string Name { get; set; } 

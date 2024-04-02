@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Learning_platform.Migrations
 {
     [DbContext(typeof(TutoringPlatformContext))]
-    [Migration("20240222162527_initialMigration")]
-    partial class initialMigration
+    [Migration("20240328174901_updateMigration5")]
+    partial class updateMigration5
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,9 @@ namespace Learning_platform.Migrations
                         .HasColumnType("varchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsProfileComplete")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -92,14 +95,143 @@ namespace Learning_platform.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Learning_platform.Entities.Language", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Language");
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ContentTypeId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("ReadTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("SentTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentTypeId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Message");
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.MessageContentType", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MessageContentType");
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.TeachingCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TeachingCategories");
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.TutorLanguages", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("LanguageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TutorId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LanguageId");
+
+                    b.HasIndex("TutorId");
+
+                    b.ToTable("TutorLanguages");
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.TutorTeachingCategories", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("TeachingCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TutorId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeachingCategoryId");
+
+                    b.HasIndex("TutorId");
+
+                    b.ToTable("TutorTeachingCategories");
+                });
+
             modelBuilder.Entity("Learning_platform.Entities.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("ApplicationUserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
+                    b.Property<string>("Country")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -109,9 +241,10 @@ namespace Learning_platform.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("Id");
+                    b.Property<string>("ProfilePhoto")
+                        .HasColumnType("longtext");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasKey("Id");
 
                     b.ToTable("User", (string)null);
 
@@ -261,21 +394,79 @@ namespace Learning_platform.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Education")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<float>("Price")
                         .HasColumnType("float");
+
+                    b.Property<float>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Reviews")
+                        .HasColumnType("int");
 
                     b.ToTable("Tutor", (string)null);
                 });
 
-            modelBuilder.Entity("Learning_platform.Entities.User", b =>
+            modelBuilder.Entity("Learning_platform.Entities.Message", b =>
                 {
-                    b.HasOne("Learning_platform.Entities.ApplicationUser", "ApplicationUser")
+                    b.HasOne("Learning_platform.Entities.MessageContentType", "ContentType")
                         .WithMany()
-                        .HasForeignKey("ApplicationUserId")
+                        .HasForeignKey("ContentTypeId");
+
+                    b.HasOne("Learning_platform.Entities.ApplicationUser", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ApplicationUser");
+                    b.HasOne("Learning_platform.Entities.ApplicationUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ContentType");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.TutorLanguages", b =>
+                {
+                    b.HasOne("Learning_platform.Entities.Language", "Language")
+                        .WithMany()
+                        .HasForeignKey("LanguageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Learning_platform.Entities.Tutor", "Tutor")
+                        .WithMany()
+                        .HasForeignKey("TutorId");
+
+                    b.Navigation("Language");
+
+                    b.Navigation("Tutor");
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.TutorTeachingCategories", b =>
+                {
+                    b.HasOne("Learning_platform.Entities.TeachingCategory", "TeachingCategory")
+                        .WithMany()
+                        .HasForeignKey("TeachingCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Learning_platform.Entities.Tutor", "Tutor")
+                        .WithMany()
+                        .HasForeignKey("TutorId");
+
+                    b.Navigation("TeachingCategory");
+
+                    b.Navigation("Tutor");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

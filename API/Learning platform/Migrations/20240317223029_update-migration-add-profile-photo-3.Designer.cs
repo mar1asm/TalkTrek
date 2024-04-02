@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Learning_platform.Migrations
 {
     [DbContext(typeof(TutoringPlatformContext))]
-    [Migration("20240222162727_updateMigration")]
-    partial class updateMigration
+    [Migration("20240317223029_update-migration-add-profile-photo-3")]
+    partial class updatemigrationaddprofilephoto3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,9 @@ namespace Learning_platform.Migrations
                         .HasColumnType("varchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsProfileComplete")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -92,6 +95,61 @@ namespace Learning_platform.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Learning_platform.Entities.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ContentTypeId")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("ReadTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("SentTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContentTypeId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Message");
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.MessageContentType", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MessageContentType");
+                });
+
             modelBuilder.Entity("Learning_platform.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -104,6 +162,10 @@ namespace Learning_platform.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<byte[]>("ProfilePhoto")
+                        .IsRequired()
+                        .HasColumnType("longblob");
 
                     b.HasKey("Id");
 
@@ -259,6 +321,31 @@ namespace Learning_platform.Migrations
                         .HasColumnType("float");
 
                     b.ToTable("Tutor", (string)null);
+                });
+
+            modelBuilder.Entity("Learning_platform.Entities.Message", b =>
+                {
+                    b.HasOne("Learning_platform.Entities.MessageContentType", "ContentType")
+                        .WithMany()
+                        .HasForeignKey("ContentTypeId");
+
+                    b.HasOne("Learning_platform.Entities.ApplicationUser", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Learning_platform.Entities.ApplicationUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ContentType");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

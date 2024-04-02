@@ -15,11 +15,16 @@ namespace Learning_platform.Entities
 
         public string LastName {  get; set; }
 
-        public User(string id, string firstName, string lastName)
+        public string? ProfilePhoto { get; set; }
+
+        public string? Country { get; set; }
+
+        public User(string id, string firstName, string lastName, string? country)
         {
             Id = id;
             FirstName = firstName;
             LastName = lastName;
+            Country = country;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Learning_platform.Models
 
         public int Id { get; private set; }
         public string Content { get; set; }
-        public ContentTypeDto ContentType { get; set; }
+        public MessageContentTypeDto ContentType { get; set; }
         public UserDto Sender { get; set; } 
         public UserDto Receiver{ get; set; }   
         public DateTime SentDate { get; set; }

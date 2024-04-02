@@ -3,6 +3,7 @@ using System;
 using Learning_platform.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Learning_platform.Migrations
 {
     [DbContext(typeof(TutoringPlatformContext))]
-    partial class TutoringPlatformContextModelSnapshot : ModelSnapshot
+    [Migration("20240328173811_updateMigration3")]
+    partial class updateMigration3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,24 +95,6 @@ namespace Learning_platform.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Learning_platform.Entities.Language", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Language");
-                });
-
             modelBuilder.Entity("Learning_platform.Entities.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -163,66 +148,6 @@ namespace Learning_platform.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MessageContentType");
-                });
-
-            modelBuilder.Entity("Learning_platform.Entities.TeachingCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TeachingCategories");
-                });
-
-            modelBuilder.Entity("Learning_platform.Entities.TutorLanguages", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("LanguageId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TutorId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LanguageId");
-
-                    b.HasIndex("TutorId");
-
-                    b.ToTable("TutorLanguages");
-                });
-
-            modelBuilder.Entity("Learning_platform.Entities.TutorTeachingCategories", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("TeachingCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TutorId")
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TeachingCategoryId");
-
-                    b.HasIndex("TutorId");
-
-                    b.ToTable("TutorTeachingCategories");
                 });
 
             modelBuilder.Entity("Learning_platform.Entities.User", b =>
@@ -433,40 +358,6 @@ namespace Learning_platform.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("Learning_platform.Entities.TutorLanguages", b =>
-                {
-                    b.HasOne("Learning_platform.Entities.Language", "Language")
-                        .WithMany()
-                        .HasForeignKey("LanguageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Learning_platform.Entities.Tutor", "Tutor")
-                        .WithMany()
-                        .HasForeignKey("TutorId");
-
-                    b.Navigation("Language");
-
-                    b.Navigation("Tutor");
-                });
-
-            modelBuilder.Entity("Learning_platform.Entities.TutorTeachingCategories", b =>
-                {
-                    b.HasOne("Learning_platform.Entities.TeachingCategory", "TeachingCategory")
-                        .WithMany()
-                        .HasForeignKey("TeachingCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Learning_platform.Entities.Tutor", "Tutor")
-                        .WithMany()
-                        .HasForeignKey("TutorId");
-
-                    b.Navigation("TeachingCategory");
-
-                    b.Navigation("Tutor");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

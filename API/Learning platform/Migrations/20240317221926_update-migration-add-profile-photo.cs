@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Learning_platform.Migrations
 {
     /// <inheritdoc />
-    public partial class initialMigration : Migration
+    public partial class updatemigrationaddprofilephoto : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,6 +36,7 @@ namespace Learning_platform.Migrations
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false),
                     RegistrationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    IsProfileComplete = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
@@ -54,6 +55,34 @@ namespace Learning_platform.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "MessageContentType",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MessageContentType", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
+                    FirstName = table.Column<string>(type: "longtext", nullable: false),
+                    LastName = table.Column<string>(type: "longtext", nullable: false),
+                    ProfilePhoto = table.Column<byte[]>(type: "longblob", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -169,23 +198,39 @@ namespace Learning_platform.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "User",
+                name: "Message",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "varchar(255)", nullable: false),
-                    FirstName = table.Column<string>(type: "longtext", nullable: false),
-                    LastName = table.Column<string>(type: "longtext", nullable: false),
-                    ApplicationUserId = table.Column<string>(type: "varchar(255)", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Content = table.Column<string>(type: "longtext", nullable: false),
+                    ContentTypeId = table.Column<string>(type: "varchar(255)", nullable: true),
+                    SenderId = table.Column<string>(type: "varchar(255)", nullable: false),
+                    ReceiverId = table.Column<string>(type: "varchar(255)", nullable: false),
+                    SentTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ReadTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    IsRead = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.Id);
+                    table.PrimaryKey("PK_Message", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_User_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
+                        name: "FK_Message_AspNetUsers_ReceiverId",
+                        column: x => x.ReceiverId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Message_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Message_MessageContentType_ContentTypeId",
+                        column: x => x.ContentTypeId,
+                        principalTable: "MessageContentType",
+                        principalColumn: "Id");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -265,9 +310,19 @@ namespace Learning_platform.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_ApplicationUserId",
-                table: "User",
-                column: "ApplicationUserId");
+                name: "IX_Message_ContentTypeId",
+                table: "Message",
+                column: "ContentTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Message_ReceiverId",
+                table: "Message",
+                column: "ReceiverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Message_SenderId",
+                table: "Message",
+                column: "SenderId");
         }
 
         /// <inheritdoc />
@@ -289,6 +344,9 @@ namespace Learning_platform.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Message");
+
+            migrationBuilder.DropTable(
                 name: "Student");
 
             migrationBuilder.DropTable(
@@ -298,10 +356,13 @@ namespace Learning_platform.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "MessageContentType");
+
+            migrationBuilder.DropTable(
+                name: "User");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Learning_platform.Entities;
+﻿using AutoMapper;
+using Learning_platform.Entities;
 using Learning_platform.Models;
 using Learning_platform.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Org.BouncyCastle.Crypto.Generators;
+using System.Security.Claims;
+using static System.Net.WebRequestMethods;
 
 namespace Learning_platform.Controllers
 {
@@ -15,14 +19,15 @@ namespace Learning_platform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IUserRepository _userRepository;
+        private readonly UserRepository _userRepository;
         private readonly IEmailSender _emailSender;
         private readonly Security _security;
         private readonly EmailConfirmationClient _emailConfirmationClient;
+        private readonly IMapper _mapper;
 
 
         public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            RoleManager<IdentityRole> roleManager, IUserRepository userRepository, IEmailSender emailSender, EmailConfirmationClient emailConfirmationClient, Security security)
+            RoleManager<IdentityRole> roleManager, UserRepository userRepository, IEmailSender emailSender, EmailConfirmationClient emailConfirmationClient, Security security, IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -31,6 +36,7 @@ namespace Learning_platform.Controllers
             _emailSender = emailSender;
             _emailConfirmationClient = emailConfirmationClient;
             _security = security;
+            _mapper = mapper;
         }
 
         [HttpPost("login")]
@@ -44,7 +50,7 @@ namespace Learning_platform.Controllers
             // Check if the user exists and if the stored hashed password is not null
             if (ApplicationUser != null && !string.IsNullOrEmpty(ApplicationUser.PasswordHash))
             {
-                   var decryptedPassword = Security.DecryptPassword(model.Password, "abcdefghijklmnop"); //change this
+                var decryptedPassword = Security.DecryptPassword(model.Password, "abcdefghijklmnop"); //change this
                                                                                                          // Compare the decrypted password received from the client with the hashed password stored in the database for the user
 
 
@@ -55,12 +61,17 @@ namespace Learning_platform.Controllers
                 var userRoles = await _userManager.GetRolesAsync(ApplicationUser);
                 var tokenResult = _security.GenerateEncodedToken(ApplicationUser.Id, "", userRoles);
 
-                var ress = _security.ValidateToken(tokenResult);
+                //var ress = _security.ValidateToken(tokenResult);
 
 
                 if (result.Succeeded)
                 {
                     return Ok(new { message = "Login successful", token=tokenResult });
+                }
+
+                if (result.IsLockedOut)
+                {
+                    return BadRequest(new { message = "Account locked out"});
                 }
             }
 
@@ -69,6 +80,25 @@ namespace Learning_platform.Controllers
             {
                 message = "Invalid email or password"
             });
+        }
+
+
+        [HttpPost("logout")]
+
+        public async Task<IActionResult> Logout([FromBody] string email)
+        {
+            ApplicationUser ApplicationUser = await _userManager.FindByEmailAsync(email);
+            // Check if the user exists and if the stored hashed password is not null
+            if (ApplicationUser != null)
+            {
+                await _signInManager.SignOutAsync();
+                return Ok();
+            }
+            return BadRequest(new
+            {
+                message = "Invalid email"
+            });
+
         }
 
         [HttpPost("register")]
@@ -101,7 +131,9 @@ namespace Learning_platform.Controllers
                 }
 
                 var emailConfirmationCode = await _userManager.GenerateEmailConfirmationTokenAsync(ApplicationUser);
-                var emailConfirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = ApplicationUser.Id, confirmationCode = emailConfirmationCode, httpMethod = "POST" }, Request.Scheme);
+                emailConfirmationCode = System.Web.HttpUtility.UrlEncode(emailConfirmationCode);
+                var emailConfirmationLink = "https://localhost:4200/confirm-email?userId=" + ApplicationUser.Id + "&confirmationCode=" + emailConfirmationCode;
+
 
                 await _emailSender.SendEmailAsync(ApplicationUser.Email, "Confirm your email", $"Please confirm your email by <a href='{emailConfirmationLink}'>clicking here</a>.");
 
@@ -112,6 +144,43 @@ namespace Learning_platform.Controllers
                 return BadRequest(result.Errors);
             }
         }
+
+
+        [HttpPut("change-password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] ChangePasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "Invalid model" });
+            }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            var ApplicationUser = await _userManager.FindByIdAsync(userId);
+            if (ApplicationUser == null)
+            {
+                return NotFound(new { message = "Invalid user" });
+            }
+
+            var decryptedOldPassword = Security.DecryptPassword(model.OldPassword, "abcdefghijklmnop"); 
+            var decryptedNewPassword = Security.DecryptPassword(model.NewPassword, "abcdefghijklmnop"); 
+
+
+            var changeResult = await _userManager.ChangePasswordAsync(ApplicationUser, decryptedOldPassword, decryptedNewPassword);
+            if (!changeResult.Succeeded)
+            {
+                return BadRequest(new { message = "Failed to change password" });
+            }
+
+            await _signInManager.SignOutAsync();
+
+            return Ok(new { message = "Password updated successfully" });
+        }
+
 
         [HttpPost("resend-confirmation-email")]
         public async Task<IActionResult> ResendConfirmationEmail(string email)
@@ -136,7 +205,7 @@ namespace Learning_platform.Controllers
 
 
             var emailConfirmationCode = await _userManager.GenerateEmailConfirmationTokenAsync(ApplicationUser);
-            var emailConfirmationLink = Url.Action("ConfirmEmail", "Account", new { ApplicationUser.Id, confirmationCode = emailConfirmationCode, httpMethod = "POST" }, Request.Scheme);
+            var emailConfirmationLink = "localhost:4200/confirm-email?userId=" + ApplicationUser.Id + "&confirmationCode=" + emailConfirmationCode;
 
             await _emailSender.SendEmailAsync(ApplicationUser.Email, "Confirm your email", $"Please confirm your email by <a href='{emailConfirmationLink}'>clicking here</a>.");
 
@@ -148,9 +217,9 @@ namespace Learning_platform.Controllers
         }
 
         [HttpPost("confirm-email", Name = "ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail(string userId, string confirmationCode)
+        public async Task<IActionResult> ConfirmEmail([FromBody] EmailConfirmationModel model)
         {
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(confirmationCode))
+            if (string.IsNullOrEmpty(model.UserId) || string.IsNullOrEmpty(model.ConfirmationCode))
             {
                 return BadRequest(new
                 {
@@ -158,7 +227,7 @@ namespace Learning_platform.Controllers
                 });
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(model.UserId);
 
             if (user == null)
             {
@@ -168,12 +237,12 @@ namespace Learning_platform.Controllers
                 });
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, confirmationCode);
+            var result = await _userManager.ConfirmEmailAsync(user, model.ConfirmationCode);
             if (result.Succeeded)
             {
                 return Ok(new
                 {
-                    message = "Email address confirmed"
+                    message = "Code confirmed"
                 });
             }
 
@@ -183,40 +252,83 @@ namespace Learning_platform.Controllers
             });
         }
 
-        [HttpGet("confirm-email")] // idk why the browser makes a GET request even if the method is configured as POST in the link
-        public async Task<IActionResult> ConfirmEmailGet(string userId, string confirmationCode)
+        [HttpDelete("account/photo")]
+
+        public async Task<IActionResult> DeleteProfilePhoto()
         {
-            // Call the ConfirmEmailAsync method in EmailConfirmationClient
-            var result = await _emailConfirmationClient.ConfirmEmailAsync(userId, confirmationCode);
-
-            if (result)
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
             {
-                // Add a delay of 10 seconds ( maybe move the logic to frontend?? )
-                await Task.Delay(10000); 
-
-                // Redirect to a success page
-                return Redirect("/success-page");
+                return NotFound("User not found.");
             }
-            else
+            var success = await _userRepository.DeleteProfilePhoto(userId);
+            if (success)
             {
-                return BadRequest(new
+                return Ok(new
                 {
-                    message = "Failed to confirm email address"
+                    message = "Profile photo deleted successfully."
                 });
             }
+
+            return BadRequest(new
+            {
+                message = "Failed to deleted profile photo."
+            });
         }
 
-        
 
-
-        [HttpPost("complete-profile")]
-        public async Task<IActionResult> CompleteProfile( AccountBasicDetailsModel model)
+        [HttpPut("account/photo")]
+        public async Task<IActionResult> UpdateProfilePhoto([FromForm(Name = "photo")] IFormFile file)
         {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Read the file contents into a byte array
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                var imageBytes = memoryStream.ToArray();
+
+                // Convert the byte array to a Base64-encoded string
+                var base64String = Convert.ToBase64String(imageBytes);
+
+                var success = await _userRepository.UpdateProfilePhoto(userId, base64String);
+                if (success)
+                {
+                    return Ok(new
+                    {
+                        message = "Profile photo updated successfully."
+                    });
+                }
+            }
+
+            return BadRequest(new
+            {
+                message = "Failed to update profile photo."
+            });
+        }
+
+
+        [HttpPut("account/profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserDto model)
+        {
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var success = await _userRepository.CompleteUserProfileAsync(model);
+            var success = await _userRepository.UpdateProfile(userId, model);
             if (success)
             {
                 return Ok(new
@@ -233,7 +345,47 @@ namespace Learning_platform.Controllers
             }
         }
 
+        //GET: Profile
+        [HttpGet("account/details")]
+        public async Task<ActionResult<UserDto>> GetDetails()
+        {
+            // Get the user's ID from the token claims
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new
+                {
+                    message = "User ID not found in token claims."
+                });
+            }
+
+            var ApplicationUser = await _userManager.FindByIdAsync(userId);
+
+            if (ApplicationUser == null)
+            {
+                return NotFound(new
+                {
+                    message = "User not found"
+                });
+            }
+
+            var userEntity = await _userRepository.GetUserAsync(ApplicationUser.Id);
+
+            var userRole = await _userManager.GetRolesAsync(ApplicationUser);
+
+            var user = _mapper.Map<UserDto>(userEntity);
+            if (user == null)
+                user = new UserDto();
+            _mapper.Map(ApplicationUser, user);
+            user.UserType = userRole.FirstOrDefault();
+
+            return Ok(new
+            {
+                user = user
+            });
+
+        }
 
         [HttpGet("restricted-endpoint")]
         [Authorize(Policy = "RequireStudentRole")]
@@ -242,7 +394,33 @@ namespace Learning_platform.Controllers
             return Ok("You have access to the restricted endpoint.");
         }
 
-        
 
+        [HttpGet("account/check")]
+        public async Task<ActionResult<bool>> CheckAccountComplete()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest(new
+                {
+                    message = "User ID not found in token claims."
+                });
+            }
+
+            var ApplicationUser = await _userManager.FindByIdAsync(userId);
+
+            if (ApplicationUser == null)
+            {
+                return NotFound(new
+                {
+                    message = "User not found"
+                });
+            }
+
+            if (ApplicationUser.IsProfileComplete)
+                return Ok(true); else
+                return Ok(false);
+        } 
     }
 }

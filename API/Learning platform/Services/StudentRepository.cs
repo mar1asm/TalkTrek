@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Learning_platform.Services
 {
-    public class StudentRepository : IStudentRepository
+    public class StudentRepository
     {
 
         private readonly TutoringPlatformContext _context;
@@ -13,9 +13,14 @@ namespace Learning_platform.Services
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public async Task<IEnumerable<Student>> GetUsersAsync()
+        public async Task<IEnumerable<Student>> GetStudentsAsync()
         {
             return await _context.Student.ToListAsync();
+        }
+
+        async Task<int> GetStudentCountAsync()
+        {
+            return await _context.Student.CountAsync();
         }
     }
 }

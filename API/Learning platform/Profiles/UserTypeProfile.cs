@@ -8,18 +8,23 @@ namespace Learning_platform.Profiles
     {
         public UserTypeProfile() {
 
-           /* CreateMap<User, UserDto>()
-                .IncludeAllDerived()
-                .ForMember(
-                dest => dest.UserType,
-                opt => opt.MapFrom(src => new UserTypeDto { Id = src.UserType.Id, Name = src.UserType.Name }))
-                .PreserveReferences();*/
+            /* CreateMap<User, UserDto>()
+                 .IncludeAllDerived()
+                 .ForMember(
+                 dest => dest.UserType,
+                 opt => opt.MapFrom(src => new UserTypeDto { Id = src.UserType.Id, Name = src.UserType.Name }))
+                 .PreserveReferences();*/
+
+            CreateMap<User, UserDto>().IncludeAllDerived();
+            CreateMap<UserDto, User>().IncludeAllDerived();
             CreateMap<User, StudentDto>().IncludeAllDerived();
             CreateMap<User, TutorDto>().IncludeAllDerived();
             CreateMap<Student, StudentDto>().IncludeAllDerived();
             CreateMap<Tutor, TutorDto>().IncludeAllDerived();
             CreateMap<UserType, UserTypeDto>();
             CreateMap<AccountBasicDetailsModel, User>();
+            CreateMap<ApplicationUser, UserDto>()
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email)).IncludeAllDerived();
         }
     }
 }
